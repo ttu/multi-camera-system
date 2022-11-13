@@ -1,7 +1,7 @@
 from typing import Callable
 import cv2
 
-from types import VideoCaptureDevice, VideoWriter
+from camera_types import VideoCaptureDevice, VideoWriter
 
 # https://www.geeksforgeeks.org/saving-operated-video-from-a-webcam-using-opencv/
 

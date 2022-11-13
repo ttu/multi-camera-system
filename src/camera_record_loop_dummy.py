@@ -1,7 +1,7 @@
 import time
 from typing import Callable
 
-from types import VideoCaptureDevice
+from camera_types import VideoCaptureDevice
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:

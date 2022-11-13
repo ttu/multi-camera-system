@@ -73,5 +73,5 @@ def main_loop(camera_id: int):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    id = args[0] if args else DEFAULT_CAMERA_ID
+    id = int(args[0]) if args else DEFAULT_CAMERA_ID
     main_loop(id)
