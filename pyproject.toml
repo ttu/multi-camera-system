@@ -21,7 +21,8 @@ dev = [
     "pylint",
     "mypy",
     "black",
-    "isort"
+    "isort",
+    "pre-commit"
 ]
 
 [tool.flake8]
@@ -39,6 +40,7 @@ line-length = 120
 
 [tool.isort]
 line_length = 120
+ensure_newline_before_comments = true
 
 [tool.mypy]
 ignore_missing_imports = true

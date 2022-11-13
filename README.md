@@ -25,7 +25,7 @@ User selects activate from web UI
 
 Server receives start request
   Get configuration
-  Send ready signal with BLE Id to all configured cameras  
+  Send ready signal with BLE Id to all configured cameras
 
 Camera computer receives ready signal with BLE device Id
   Start camera
