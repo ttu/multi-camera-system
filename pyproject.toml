@@ -19,7 +19,8 @@ dev = [
     "flake8-pyproject",
     "pytest",
     "pylint",
-    "mypy"
+    "mypy",
+    "black"
 ]
 
 [tool.flake8]
