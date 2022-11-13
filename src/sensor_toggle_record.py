@@ -2,7 +2,6 @@ import sqlite3 as sl
 
 import config
 
-
 UPDATE_STATEMEMT = "UPDATE camera SET recording = ? WHERE id = ?"
 
 

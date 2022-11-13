@@ -1,12 +1,11 @@
 import sys
-from threading import Thread
 import time
+from threading import Thread
 
-from camera_start_listener_db import check_start_from_db
 from camera_record_listener_db import check_recording_from_db
-
 # from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
 from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
+from camera_start_listener_db import check_start_from_db
 
 
 class RunFlag:

@@ -1,4 +1,5 @@
 from typing import Callable
+
 import cv2
 
 from camera_types import VideoCaptureDevice, VideoWriter

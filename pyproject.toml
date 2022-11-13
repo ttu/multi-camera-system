@@ -20,7 +20,8 @@ dev = [
     "pytest",
     "pylint",
     "mypy",
-    "black"
+    "black",
+    "isort"
 ]
 
 [tool.flake8]
@@ -35,6 +36,9 @@ disable = [
 
 [tool.black]
 line-length = 120
+
+[tool.isort]
+line_length = 120
 
 [tool.mypy]
 ignore_missing_imports = true
