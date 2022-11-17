@@ -2,9 +2,20 @@ from typing import Callable
 
 import cv2
 
-from camera_types import VideoCaptureDevice, VideoWriter
+from camera_types import CameraStatus, VideoCaptureDevice, VideoWriter
 
 # https://www.geeksforgeeks.org/saving-operated-video-from-a-webcam-using-opencv/
+
+
+def prepare_camera(camera_id: int) -> VideoCaptureDevice:
+    print("Camera starting", {"camera_id": camera_id})
+    cap = cv2.VideoCapture(camera_id)
+    return cap
+
+
+def shutdown_camera(video_capture: VideoCaptureDevice):
+    # Release webcam
+    video_capture.release()
 
 
 def _create_output() -> VideoWriter:
@@ -22,14 +33,27 @@ def _release_output(out: VideoWriter):
     out.release()
 
 
-def prepare_camera(camera_id: int) -> VideoCaptureDevice:
-    cap = cv2.VideoCapture(camera_id)
-    return cap
+def _check_state(current_state, should_run, should_record):
+    if not should_run():
+        return (None, None)
+
+    if should_record():
+        return (CameraStatus.RECORDING, _recording_state)
+
+    return (CameraStatus.READY, _ready_state)
 
 
-def shutdown_camera(video_capture: VideoCaptureDevice):
-    # Release webcam
-    video_capture.release()
+def _ready_state(video_capture: VideoCaptureDevice, output: VideoWriter):
+    # reads frames from a camera
+    _, frame = video_capture.read()
+    # TODO: Should do something with the frame?
+    # Show input frame in the window
+    # cv2.imshow("Original", frame)
+
+
+def _recording_state(video_capture: VideoCaptureDevice, output: VideoWriter):
+    _, frame = video_capture.read()
+    _write_to_output(frame, output)
 
 
 def run_camera_loop(
@@ -37,17 +61,14 @@ def run_camera_loop(
     should_run: Callable[[], bool],
     should_record: Callable[[], bool],
 ):
+    state = CameraStatus.READY
     out = _create_output()
 
-    while should_run():
-        # reads frames from a camera
-        _, frame = video_capture.read()
-
-        if should_record():
-            _write_to_output(frame, out)
-
-        # Show input frame in the window
-        # cv2.imshow("Original", frame)
+    while True:
+        state, state_func = _check_state(state, should_run, should_record)
+        if not state_func:
+            break
+        state_func(video_capture, out)
 
     _release_output(out)
     # De-allocate any associated memory usage
