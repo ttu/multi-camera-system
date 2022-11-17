@@ -6,6 +6,7 @@ from camera_record_listener_db import check_recording_from_db
 
 # from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
 from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
+from camera_send_status_db import update_camera_status
 from camera_start_listener_db import check_start_from_db
 from camera_types import CameraStatus
 
@@ -45,6 +46,7 @@ def _check_recording_on(camera_id: int):
 
 
 def _send_status(camera_id: int, status: CameraStatus):
+    update_camera_status(camera_id, status)
     print("Sending status:", {camera_id, status.name})
 
 

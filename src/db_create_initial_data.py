@@ -17,6 +17,16 @@ def create_db():
             );
             """
         )
+        con.execute(
+            """
+            CREATE TABLE camera_status (
+                id INTEGER NOT NULL REFERENCES camera(id),
+                status TEXT NOT NULL,
+                time TIMESTAMP,
+                PRIMARY KEY(id, status, time)
+            );
+            """
+        )
 
 
 def seed_db():
