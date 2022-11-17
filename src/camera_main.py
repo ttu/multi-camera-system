@@ -7,6 +7,7 @@ from camera_record_listener_db import check_recording_from_db
 # from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
 from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
 from camera_start_listener_db import check_start_from_db
+from camera_types import CameraStatus
 
 
 class RunFlag:
@@ -43,32 +44,45 @@ def _check_recording_on(camera_id: int):
         time.sleep(1)
 
 
+def _send_status(camera_id: int, status: CameraStatus):
+    print("Sending status:", {camera_id, status.name})
+
+
 def main_loop(camera_id: int):
+    print("Starting:", {camera_id})
     start_thread = Thread(target=_check_camera_on, args=[camera_id])
     start_thread.start()
 
+    _send_status(camera_id, CameraStatus.OFF)
+
     while True:
-        # TODO: Send status "device on"
 
         if not _camera_on(camera_id):
-            print("idle")
+            print("idle", {camera_id})
             time.sleep(2)
             continue
 
         video_capture = prepare_camera(camera_id)
-        print("camera ready")
+        print("camera ready", {camera_id})
         # TODO: Send status "camera ready"
+        _send_status(camera_id, CameraStatus.ON)
 
         RUN_RECORD_CHECK.running = True
         record_thread = Thread(target=_check_recording_on, args=[camera_id])
         record_thread.start()
 
-        # TODO: Find a correct place to send status "camera recording"
-        run_camera_loop(video_capture, lambda: _camera_on(camera_id), lambda: _recording_on(camera_id))
+        def notify_camera_status(camera_status: CameraStatus):
+            _send_status(camera_id, camera_status)
+
+        run_camera_loop(
+            video_capture, lambda: _camera_on(camera_id), lambda: _recording_on(camera_id), notify_camera_status
+        )
         shutdown_camera(video_capture)
 
         RUN_RECORD_CHECK.running = False
         record_thread.join()
+
+        _send_status(camera_id, CameraStatus.OFF)
 
 
 if __name__ == "__main__":
