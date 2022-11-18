@@ -1,7 +1,7 @@
 import time
 from typing import Callable
 
-from camera_types import CameraStatus, VideoCaptureDevice
+from camera_types import CameraStatus, VideoCaptureDevice, VideoFrame
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
@@ -11,6 +11,10 @@ def prepare_camera(camera_id: int) -> VideoCaptureDevice:
 
 def shutdown_camera(dummy_capture: VideoCaptureDevice):
     print("Camera stopping", {"camera_id": dummy_capture["camera_id"]})
+
+
+def dispaly_show_frame(frame: VideoFrame):
+    print("Showing new frame")
 
 
 def _check_state(
@@ -32,12 +36,14 @@ def _check_state(
     return (CameraStatus.CAMERA_READY, _ready_state)
 
 
-def _ready_state(dummy_capture: VideoCaptureDevice):
+def _ready_state(dummy_capture: VideoCaptureDevice, new_frame: Callable[[VideoFrame], None]):
     print("Waiting for signal", {"camera_id": dummy_capture["camera_id"]})
+    new_frame("frame")
 
 
-def _recording_state(dummy_capture: VideoCaptureDevice):
+def _recording_state(dummy_capture: VideoCaptureDevice, new_frame: Callable[[VideoFrame], None]):
     print("Recording", {"camera_id": dummy_capture["camera_id"]})
+    new_frame("frame")
 
 
 def run_camera_loop(
@@ -45,11 +51,12 @@ def run_camera_loop(
     should_run: Callable[[], bool],
     should_record: Callable[[], bool],
     notify_camera_status: Callable[[CameraStatus], None],
+    new_frame: Callable[[VideoFrame], None],
 ):
     state = CameraStatus.CAMERA_READY
     while True:
         state, state_func = _check_state(state, should_run, should_record, notify_camera_status)
         if not state_func:
             break
-        state_func(dummy_capture)
+        state_func(dummy_capture, new_frame)
         time.sleep(1)

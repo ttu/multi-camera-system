@@ -2,7 +2,7 @@ from typing import Callable
 
 import cv2
 
-from camera_types import CameraStatus, VideoCaptureDevice, VideoWriter
+from camera_types import CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter
 
 # https://www.geeksforgeeks.org/saving-operated-video-from-a-webcam-using-opencv/
 
@@ -16,6 +16,11 @@ def prepare_camera(camera_id: int) -> VideoCaptureDevice:
 def shutdown_camera(video_capture: VideoCaptureDevice):
     # Release webcam
     video_capture.release()
+
+
+def dispaly_show_frame(frame: VideoFrame):
+    cv2.imshow("Original", frame)
+    cv2.waitKey(1)
 
 
 def _create_output() -> VideoWriter:
@@ -52,16 +57,25 @@ def _check_state(
     return (CameraStatus.CAMERA_READY, _ready_state)
 
 
-def _ready_state(video_capture: VideoCaptureDevice, output: VideoWriter):
+def _ready_state(
+    video_capture: VideoCaptureDevice,
+    output: VideoWriter,
+    new_frame: Callable[[VideoFrame], None],
+):
     # reads frames from a camera
     _, frame = video_capture.read()
-    # TODO: Should do something with the frame?
+    new_frame(frame)
     # Show input frame in the window
     # cv2.imshow("Original", frame)
 
 
-def _recording_state(video_capture: VideoCaptureDevice, output: VideoWriter):
+def _recording_state(
+    video_capture: VideoCaptureDevice,
+    output: VideoWriter,
+    new_frame: Callable[[VideoFrame], None],
+):
     _, frame = video_capture.read()
+    new_frame(frame)
     _write_to_output(frame, output)
 
 
@@ -70,6 +84,7 @@ def run_camera_loop(
     should_run: Callable[[], bool],
     should_record: Callable[[], bool],
     notify_camera_status: Callable[[CameraStatus], None],
+    new_frame: Callable[[VideoFrame], None],
 ):
     state = CameraStatus.CAMERA_READY
     out = _create_output()
@@ -78,8 +93,8 @@ def run_camera_loop(
         state, state_func = _check_state(state, should_run, should_record, notify_camera_status)
         if not state_func:
             break
-        state_func(video_capture, out)
+        state_func(video_capture, out, new_frame)
 
     _release_output(out)
     # De-allocate any associated memory usage
-    # cv2.destroyAllWindows()
+    cv2.destroyAllWindows()

@@ -1,14 +1,16 @@
+import socket
 import sys
 import time
 from threading import Thread
 
 from camera_record_listener_db import check_recording_from_db
+from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
 
-# from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
-from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
+# from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
 from camera_send_status_db import update_camera_status
 from camera_start_listener_db import check_start_from_db
-from camera_types import CameraStatus
+from camera_types import CameraStatus, VideoFrame
+from data_steramer import init_socket, send_frame
 
 
 class RunFlag:
@@ -16,6 +18,8 @@ class RunFlag:
 
 
 RUN_CAMERA = RunFlag()
+STREAM_CAMERA = RunFlag()
+STREAM_CAMERA.running = True
 RECORD_CAMERA = RunFlag()
 RUN_RECORD_CHECK = RunFlag()
 
@@ -50,10 +54,18 @@ def _send_status(camera_id: int, status: CameraStatus):
     print("Sending status:", {camera_id, status.name})
 
 
+def _new_frame_received(socket: socket, frame: VideoFrame):
+    if STREAM_CAMERA.running:
+        send_frame(socket, frame)
+        # dispaly_show_frame(frame)
+
+
 def main_loop(camera_id: int):
     print("Starting:", {camera_id})
-    start_thread = Thread(target=_check_camera_on, args=[camera_id])
+    start_thread = Thread(target=_check_camera_on, args=[camera_id], daemon=True)
     start_thread.start()
+
+    socket = init_socket()
 
     _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
 
@@ -69,7 +81,7 @@ def main_loop(camera_id: int):
         _send_status(camera_id, CameraStatus.CAMERA_READY)
 
         RUN_RECORD_CHECK.running = True
-        record_thread = Thread(target=_check_recording_on, args=[camera_id])
+        record_thread = Thread(target=_check_recording_on, args=[camera_id], daemon=True)
         record_thread.start()
 
         run_camera_loop(
@@ -77,6 +89,7 @@ def main_loop(camera_id: int):
             lambda: _camera_on(camera_id),
             lambda: _recording_on(camera_id),
             lambda status: _send_status(camera_id, status),
+            lambda frame: _new_frame_received(socket, frame),
         )
         shutdown_camera(video_capture)
 
