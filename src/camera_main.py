@@ -65,9 +65,8 @@ def main_loop(camera_id: int):
     start_thread = Thread(target=_check_camera_on, args=[camera_id], daemon=True)
     start_thread.start()
 
-    socket = init_socket()
-
     _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
+    socket = None
 
     while True:
 
@@ -75,6 +74,11 @@ def main_loop(camera_id: int):
             print("idle", {camera_id})
             time.sleep(2)
             continue
+
+        _send_status(camera_id, CameraStatus.CAMERA_PREPARE)
+
+        if not socket:
+            socket = init_socket()
 
         video_capture = prepare_camera(camera_id)
         print("camera ready", {camera_id})
@@ -96,7 +100,7 @@ def main_loop(camera_id: int):
         RUN_RECORD_CHECK.running = False
         record_thread.join()
 
-        _send_status(camera_id, CameraStatus.SYSTEM_OFF)
+        _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
 
 
 if __name__ == "__main__":
