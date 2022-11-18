@@ -55,7 +55,7 @@ def main_loop(camera_id: int):
     start_thread = Thread(target=_check_camera_on, args=[camera_id])
     start_thread.start()
 
-    _send_status(camera_id, CameraStatus.OFF)
+    _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
 
     while True:
 
@@ -66,25 +66,24 @@ def main_loop(camera_id: int):
 
         video_capture = prepare_camera(camera_id)
         print("camera ready", {camera_id})
-        # TODO: Send status "camera ready"
-        _send_status(camera_id, CameraStatus.ON)
+        _send_status(camera_id, CameraStatus.CAMERA_READY)
 
         RUN_RECORD_CHECK.running = True
         record_thread = Thread(target=_check_recording_on, args=[camera_id])
         record_thread.start()
 
-        def notify_camera_status(camera_status: CameraStatus):
-            _send_status(camera_id, camera_status)
-
         run_camera_loop(
-            video_capture, lambda: _camera_on(camera_id), lambda: _recording_on(camera_id), notify_camera_status
+            video_capture,
+            lambda: _camera_on(camera_id),
+            lambda: _recording_on(camera_id),
+            lambda status: _send_status(camera_id, status),
         )
         shutdown_camera(video_capture)
 
         RUN_RECORD_CHECK.running = False
         record_thread.join()
 
-        _send_status(camera_id, CameraStatus.OFF)
+        _send_status(camera_id, CameraStatus.SYSTEM_OFF)
 
 
 if __name__ == "__main__":

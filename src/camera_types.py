@@ -6,7 +6,7 @@ VideoCaptureDevice = Any  # cv2.VideoCapture
 
 
 class CameraStatus(Enum):
-    ON = "ON"
-    OFF = "OFF"
-    READY = "READY"
-    RECORDING = "RECORDING"
+    SYSTEM_STANDBY = "SYSTEM_STANDBY"
+    SYSTEM_OFF = "SYSTEM_OFF"
+    CAMERA_READY = "CAMERA_READY"
+    CAMERA_RECORDING = "CAMERA_RECORDING"

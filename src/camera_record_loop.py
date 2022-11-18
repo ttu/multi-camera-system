@@ -43,13 +43,13 @@ def _check_state(
         return (None, None)
 
     if should_record():
-        if current_state != CameraStatus.RECORDING:
-            notify_camera_status(CameraStatus.RECORDING)
-        return (CameraStatus.RECORDING, _recording_state)
+        if current_state != CameraStatus.CAMERA_RECORDING:
+            notify_camera_status(CameraStatus.CAMERA_RECORDING)
+        return (CameraStatus.CAMERA_RECORDING, _recording_state)
 
-    if current_state != CameraStatus.READY:
-        notify_camera_status(CameraStatus.READY)
-    return (CameraStatus.READY, _ready_state)
+    if current_state != CameraStatus.CAMERA_READY:
+        notify_camera_status(CameraStatus.CAMERA_READY)
+    return (CameraStatus.CAMERA_READY, _ready_state)
 
 
 def _ready_state(video_capture: VideoCaptureDevice, output: VideoWriter):
@@ -71,7 +71,7 @@ def run_camera_loop(
     should_record: Callable[[], bool],
     notify_camera_status: Callable[[CameraStatus], None],
 ):
-    state = CameraStatus.READY
+    state = CameraStatus.CAMERA_READY
     out = _create_output()
 
     while True:
