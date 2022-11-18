@@ -12,10 +12,13 @@ python -m pip install .[dev]
 
 ### Process
 
-System
+#### System
 ![System](docs/system.excalidraw.png)
 
-Detection with BLE sensors
+#### PoC communication
+![System](docs/poc_communication.excalidraw.png)
+
+#### Detection with BLE sensors & recording
 ![Detection](docs/detection.excalidraw.png)
 
 
