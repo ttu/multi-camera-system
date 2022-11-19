@@ -10,7 +10,7 @@ from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
 from camera_send_status_db import update_camera_status
 from camera_start_listener_db import check_start_from_db
 from camera_types import CameraStatus, VideoFrame
-from data_steramer import init_socket, send_frame
+from video_stream_producer import send_frame, try_init_socket
 
 
 class RunFlag:
@@ -55,7 +55,7 @@ def _send_status(camera_id: int, status: CameraStatus):
 
 
 def _new_frame_received(socket: socket, frame: VideoFrame):
-    if STREAM_CAMERA.running:
+    if STREAM_CAMERA.running and socket:
         send_frame(socket, frame)
         # dispaly_show_frame(frame)
 
@@ -78,7 +78,7 @@ def main_loop(camera_id: int):
         _send_status(camera_id, CameraStatus.CAMERA_PREPARE)
 
         if not socket:
-            socket = init_socket()
+            socket = try_init_socket()
 
         video_capture = prepare_camera(camera_id)
         print("camera ready", {camera_id})

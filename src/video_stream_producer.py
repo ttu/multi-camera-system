@@ -6,10 +6,14 @@ import config
 from camera_types import VideoFrame
 
 
-def init_socket():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((config.SERVER_HOST, config.SERVER_PORT))
-    return s
+def try_init_socket():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((config.SERVER_HOST, config.SERVER_PORT))
+        return s
+    except Exception:
+        print("Socket init failed")
+        return None
 
 
 def send_frame(socket: socket, frame: VideoFrame):
