@@ -1,6 +1,8 @@
 import pickle
 import socket
 import struct
+from queue import Queue
+from threading import Thread
 from typing import Generator, Tuple
 
 import config
@@ -24,20 +26,35 @@ def _get_frame_data(conn: socket.socket, data: bytes) -> Tuple[bytes, bytes]:
     return data, frame_data
 
 
-def receive_stream() -> Generator[VideoFrame, None, None]:
+def _on_new_client(client_socket, address, queue):
     data = b""
+    with client_socket:
+        print(f"Connected by {address}")
+        while True:
+            data, frame_data = _get_frame_data(client_socket, data)
+            if not frame_data or frame_data == b"":
+                continue
+            frame = pickle.loads(frame_data)
+            # TODO: For now we always expect that we receive a frame
+            if not frame.any():
+                continue
+            queue.put((address, frame))
+
+
+def _start_socket_listener(queue: Queue) -> Generator[VideoFrame, None, None]:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((config.SERVER_HOST, config.SERVER_PORT))
         s.listen()
-        conn, addr = s.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            while True:
-                data, frame_data = _get_frame_data(conn, data)
-                if not frame_data or frame_data == b"":
-                    break
-                frame = pickle.loads(frame_data)
-                # TODO: For now we always expect that we receive a frame
-                if not frame:
-                    break
-                yield frame
+        while True:
+            conn, addr = s.accept()
+            Thread(target=_on_new_client, args=[conn, addr, queue], daemon=True).start()
+
+
+def receive_stream() -> Generator[VideoFrame, None, None]:
+    queue = Queue()
+    listen_thread = Thread(target=_start_socket_listener, args=[queue], daemon=True)
+    listen_thread.start()
+
+    while True:
+        address, data = queue.get(True, None)
+        yield data
