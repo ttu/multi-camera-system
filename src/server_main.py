@@ -20,9 +20,9 @@ c = CameraConfig(1, [0, 1])
 
 def _check_status(camera_config: CameraConfig):
     while True:
-        for c in camera_config.cameras:
-            status = check_status_from_db(c)
-            print("Camera status", {"camera_id": c, "status": status})
+        for camera_id in camera_config.cameras:
+            status = check_status_from_db(camera_id)
+            print("Camera status", {"camera_id": camera_id, "status": status})
             time.sleep(2.1)
 
 

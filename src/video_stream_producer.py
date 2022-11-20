@@ -6,7 +6,7 @@ import config
 from camera_types import VideoFrame
 
 
-def try_init_socket():
+def try_init_socket() -> socket.socket | None:
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((config.SERVER_HOST, config.SERVER_PORT))
@@ -16,7 +16,7 @@ def try_init_socket():
         return None
 
 
-def send_frame(socket: socket, frame: VideoFrame):
+def send_frame(socket: socket.socket, frame: VideoFrame):
     x_as_bytes = pickle.dumps(frame)
     size = len(x_as_bytes)
     p = struct.pack("I", size)

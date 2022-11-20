@@ -54,7 +54,7 @@ def _send_status(camera_id: int, status: CameraStatus):
     print("Sending status:", {camera_id, status.name})
 
 
-def _new_frame_received(socket: socket, frame: VideoFrame):
+def _new_frame_received(socket: socket.socket | None, frame: VideoFrame):
     if STREAM_CAMERA.running and socket:
         send_frame(socket, frame)
         # dispaly_show_frame(frame)
