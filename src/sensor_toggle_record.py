@@ -1,4 +1,5 @@
 import sqlite3 as sl
+import sys
 
 import config
 
@@ -23,4 +24,7 @@ def toggle_record(camera_id: int):
         print("Set state", {"camera_id": camera_id, "recording": not recording})
 
 
-toggle_record(0)
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    id = int(args[0]) if args else 0
+    toggle_record(id)

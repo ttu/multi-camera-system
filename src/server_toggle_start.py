@@ -1,4 +1,5 @@
 import sqlite3 as sl
+import sys
 
 import config
 
@@ -21,4 +22,7 @@ def toggle_start(camera_id: int):
         print("Set state", {"camera_id": camera_id, "running": not running})
 
 
-toggle_start(0)
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    id = int(args[0]) if args else 0
+    toggle_start(id)
