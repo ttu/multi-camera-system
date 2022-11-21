@@ -26,9 +26,23 @@ def _check_status(camera_config: CameraConfig):
             time.sleep(2.1)
 
 
+def _is_frame(frame):
+    return hasattr(frame, "empty")
+
+
 def _handle_video_stream():
-    for frame in receive_stream():
-        cv2.imshow("server", frame)
+    windows = {}
+    for address, frame in receive_stream():
+        key = str(address)
+        if key not in windows:
+            windows[key] = True
+            cv2.namedWindow(key)
+
+        if _is_frame(frame):
+            cv2.imshow(key, frame)
+        else:
+            print(frame)
+
         cv2.waitKey(1)
 
     cv2.destroyAllWindows()

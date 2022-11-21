@@ -14,16 +14,19 @@ PAYLOAD_SIZE = struct.calcsize("I")
 
 
 def _get_frame_data(conn: socket.socket, data: bytes) -> Tuple[bytes, bytes]:
-    while len(data) < PAYLOAD_SIZE:
-        data += conn.recv(4096)
-    packed_msg_size = data[:PAYLOAD_SIZE]
-    data = data[PAYLOAD_SIZE:]
-    msg_size = struct.unpack("I", packed_msg_size)[0]
-    while len(data) < msg_size:
-        data += conn.recv(4096)
-    frame_data = data[:msg_size]
-    data = data[msg_size:]
-    return data, frame_data
+    try:
+        while len(data) < PAYLOAD_SIZE:
+            data += conn.recv(4096)
+        packed_msg_size = data[:PAYLOAD_SIZE]
+        data = data[PAYLOAD_SIZE:]
+        msg_size = struct.unpack("I", packed_msg_size)[0]
+        while len(data) < msg_size:
+            data += conn.recv(4096)
+        frame_data = data[:msg_size]
+        data = data[msg_size:]
+        return data, frame_data
+    except ConnectionResetError:
+        return None, None
 
 
 def _on_new_client(client_socket, address, queue):
@@ -36,8 +39,8 @@ def _on_new_client(client_socket, address, queue):
                 continue
             frame = pickle.loads(frame_data)
             # TODO: For now we always expect that we receive a frame
-            if not frame.any():
-                continue
+            # if not frame.any():
+            #     continue
             queue.put((address, frame))
 
 
@@ -57,4 +60,4 @@ def receive_stream() -> Generator[VideoFrame, None, None]:
 
     while True:
         address, data = queue.get(True, None)
-        yield data
+        yield address, data
