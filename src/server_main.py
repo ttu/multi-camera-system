@@ -27,7 +27,7 @@ def _check_status(camera_config: CameraConfig):
 
 
 def _is_frame(frame):
-    return hasattr(frame, "empty")
+    return hasattr(frame, "size")
 
 
 def _handle_video_stream():

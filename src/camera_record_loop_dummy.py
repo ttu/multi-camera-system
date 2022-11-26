@@ -1,7 +1,12 @@
+import pathlib
 import time
 from typing import Callable
 
+import cv2
+
 from camera_types import CameraStatus, VideoCaptureDevice, VideoFrame
+
+PATH = pathlib.Path().resolve()
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
@@ -36,14 +41,21 @@ def _check_state(
     return (CameraStatus.CAMERA_READY, _ready_state)
 
 
+def _get_frame():
+    image = cv2.imread(f"{PATH}/src/images/cat.jpg")
+    return image
+
+
 def _ready_state(dummy_capture: VideoCaptureDevice, new_frame: Callable[[VideoFrame], None]):
     print("Waiting for signal", {"camera_id": dummy_capture["camera_id"]})
-    new_frame("frame")
+    frame = _get_frame()
+    new_frame(frame)
 
 
 def _recording_state(dummy_capture: VideoCaptureDevice, new_frame: Callable[[VideoFrame], None]):
     print("Recording", {"camera_id": dummy_capture["camera_id"]})
-    new_frame("frame")
+    frame = _get_frame()
+    new_frame(frame)
 
 
 def run_camera_loop(
