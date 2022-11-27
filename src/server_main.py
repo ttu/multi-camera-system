@@ -26,10 +26,6 @@ def _check_status(camera_config: CameraConfig):
             time.sleep(2.1)
 
 
-def _is_frame(frame):
-    return hasattr(frame, "size")
-
-
 def _handle_video_stream():
     windows = {}
     for address, frame in receive_stream():
@@ -38,11 +34,7 @@ def _handle_video_stream():
             windows[key] = True
             cv2.namedWindow(key)
 
-        if _is_frame(frame):
-            cv2.imshow(key, frame)
-        else:
-            print(frame)
-
+        cv2.imshow(key, frame)
         cv2.waitKey(1)
 
     cv2.destroyAllWindows()
