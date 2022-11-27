@@ -10,6 +10,17 @@ source .venv/bin/activate
 python -m pip install .[dev]
 ```
 
+### Run
+
+```sh
+# create database
+python src/db_create_initial_data.py
+# start server
+python src/server_main.py
+# start camera
+python src/camera_main.py
+```
+
 ### Process
 
 #### System
