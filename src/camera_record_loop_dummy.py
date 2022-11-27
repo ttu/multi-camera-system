@@ -1,3 +1,4 @@
+import os
 import pathlib
 import time
 from typing import Callable
@@ -6,7 +7,8 @@ import cv2
 
 from camera_types import CameraStatus, VideoCaptureDevice, VideoFrame
 
-PATH = pathlib.Path().resolve()
+current_path = str(pathlib.Path().resolve())
+PATH = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
@@ -42,7 +44,7 @@ def _check_state(
 
 
 def _get_frame():
-    image = cv2.imread(f"{PATH}/src/images/cat.jpg")
+    image = cv2.imread(f"{PATH}/images/cat.jpg")
     return image
 
 
