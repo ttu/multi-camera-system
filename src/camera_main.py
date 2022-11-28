@@ -1,16 +1,17 @@
+import argparse
 import socket
-import sys
 import time
 from threading import Thread
 
 from camera_record_listener_db import check_recording_from_db
-from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
-
-# from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
 from camera_send_status_db import update_camera_status
 from camera_start_listener_db import check_start_from_db
 from common_types import CameraStatus, VideoFrame
 from video_stream_producer import send_frame, try_init_socket
+
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument("--camera-id", dest="camera_id", default=0)
+arg_parser.add_argument("--dummy-mode", dest="use_dummy_mode", default=False)
 
 
 class RunFlag:
@@ -60,8 +61,21 @@ def _new_frame_received(socket: socket.socket | None, frame: VideoFrame):
         # dispaly_show_frame(frame)
 
 
-def main_loop(camera_id: int):
-    print("Starting:", {camera_id})
+def _get_camera_functions(use_dummy_mode: bool):
+    if use_dummy_mode:
+        from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
+
+        return prepare_camera, run_camera_loop, shutdown_camera
+    else:
+        from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
+
+        return prepare_camera, run_camera_loop, shutdown_camera
+
+
+def main_loop(camera_id: int, use_dummy_mode: bool):
+    print("Starting:", {"camera_id": camera_id, "use_dummy_mode": use_dummy_mode})
+    prepare_camera, run_camera_loop, shutdown_camera = _get_camera_functions(use_dummy_mode)
+
     start_thread = Thread(target=_check_camera_on, args=[camera_id], daemon=True)
     start_thread.start()
 
@@ -71,7 +85,7 @@ def main_loop(camera_id: int):
     while True:
 
         if not _camera_on(camera_id):
-            print("idle", {camera_id})
+            print("idle", {"camera_id": camera_id})
             time.sleep(2)
             continue
 
@@ -81,7 +95,7 @@ def main_loop(camera_id: int):
             socket = try_init_socket()
 
         video_capture = prepare_camera(camera_id)
-        print("camera ready", {camera_id})
+        print("camera ready", {"camera_id": camera_id})
         _send_status(camera_id, CameraStatus.CAMERA_READY)
 
         RUN_RECORD_CHECK.running = True
@@ -104,6 +118,5 @@ def main_loop(camera_id: int):
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    id = int(args[0]) if args else DEFAULT_CAMERA_ID
-    main_loop(id)
+    args = arg_parser.parse_args()
+    main_loop(args.camera_id, args.use_dummy_mode)

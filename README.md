@@ -21,6 +21,10 @@ python src/server_main.py
 python src/camera_main.py
 ```
 
+Start the camera in dummy mode
+```sh
+python src/camera_main.py --dummy-mode True
+```
 ### Process
 
 #### System
