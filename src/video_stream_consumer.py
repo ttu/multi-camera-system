@@ -5,8 +5,8 @@ from queue import Queue
 from threading import Thread
 from typing import Generator, Tuple
 
-import config
-from camera_types import Address, VideoFrame
+import common_config
+from common_types import Address, VideoFrame
 
 # https://gist.github.com/kittinan/e7ecefddda5616eab2765fdb2affed1b
 
@@ -48,7 +48,7 @@ def _on_new_client(client_socket: socket.socket, address: Address, queue: Queue[
 
 def _start_socket_listener(queue: Queue[Tuple[Address, VideoFrame]]) -> Generator[VideoFrame, None, None]:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((config.SERVER_HOST, config.SERVER_PORT))
+        s.bind((common_config.SERVER_HOST, common_config.SERVER_PORT))
         s.listen()
         while True:
             conn, addr = s.accept()

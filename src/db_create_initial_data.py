@@ -1,8 +1,8 @@
 import sqlite3 as sl
 
-import config
+import common_config
 
-con = sl.connect(config.DB_NAME)
+con = sl.connect(common_config.DB_NAME)
 
 
 def create_db():

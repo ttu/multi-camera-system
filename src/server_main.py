@@ -10,7 +10,7 @@ import uvicorn
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 
-from camera_types import VideoFrame
+from common_types import VideoFrame
 from server_check_status_db import check_status_from_db
 from server_toggle_start import set_camera_running
 from video_stream_consumer import receive_stream

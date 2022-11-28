@@ -1,10 +1,10 @@
 import sqlite3 as sl
 
-import config
+import common_config
 
 
 def check_start_from_db(camera_id: int) -> bool:
-    con = sl.connect(config.DB_NAME)
+    con = sl.connect(common_config.DB_NAME)
 
     with con:
         cursor = con.cursor()

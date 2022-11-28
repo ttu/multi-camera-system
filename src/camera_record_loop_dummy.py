@@ -5,7 +5,7 @@ from typing import Callable
 
 import cv2
 
-from camera_types import CameraStatus, VideoCaptureDevice, VideoFrame
+from common_types import CameraStatus, VideoCaptureDevice, VideoFrame
 
 current_path = str(pathlib.Path().resolve())
 PATH = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"

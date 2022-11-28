@@ -9,7 +9,7 @@ from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
 # from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
 from camera_send_status_db import update_camera_status
 from camera_start_listener_db import check_start_from_db
-from camera_types import CameraStatus, VideoFrame
+from common_types import CameraStatus, VideoFrame
 from video_stream_producer import send_frame, try_init_socket
 
 
