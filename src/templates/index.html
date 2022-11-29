@@ -12,6 +12,9 @@
         <img v-bind:id="`frame_${f}`" src="" />
         <div v-bind:id="`frame_count_${f}`">Frame count: {{ count }}</div>
       </div>
+      <div>
+        <button @click="startCamera">Start camera 0</button>
+      </div>
     </div>
     <script type="module">
       import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
@@ -39,6 +42,14 @@
                 URL.revokeObjectURL(this.src); // release the blob URL once the image is loaded
               };
             };
+          },
+          async startCamera() {
+            const response = await fetch(
+              "http://127.0.0.1:8000/start-camera/",
+              { method: "post", body: JSON.stringify({ camera_id: 0 }) }
+            );
+            const content = await response.json();
+            console.log(content);
           },
         },
       }).mount("#app");

@@ -1,13 +1,14 @@
 import os
 import pathlib
 import time
+from asyncio.queues import Queue
 from dataclasses import dataclass
-from queue import Queue
 from threading import Thread
 
 import cv2
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from common_types import VideoFrame
@@ -61,19 +62,29 @@ def _get_video_streams():
         stream_queue.put(frame)
 
 
-def _get_frame():
+async def _get_frame():
     while True:
-        next = stream_queue.get(True)
+        next = await stream_queue.get()
         (flag, encodedImage) = cv2.imencode(".jpg", next)
         if flag:
             yield encodedImage
+
+
+@app.post("/start-camera/")
+async def start_camera(request: Request):
+    data = await request.json()
+    if data["camera_id"] != 0:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST)
+
+    set_camera_running(data["camera_id"], True)
+    return JSONResponse(content={"camera_id": data["camera_id"], "running": True})
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        for frame in _get_frame():
+        async for frame in _get_frame():
             await websocket.send_bytes(frame.tobytes())
     except WebSocketDisconnect:
         print("Client disconnected")
@@ -86,9 +97,6 @@ async def startup_event():
     check_thread.start()
     stream_thread = Thread(target=_get_video_streams_and_show_in_window, daemon=True)
     stream_thread.start()
-
-    # TODO: Receive start signal from API
-    set_camera_running(0, True)
 
 
 if __name__ == "__main__":
