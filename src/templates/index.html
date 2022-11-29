@@ -1,20 +1,47 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Live Streaming</title>
-    </head>
-    <body>
-      <h1>Live Streaming</h1>
-        <img id="frame" src="">
-        <script>
+  <head>
+    <title>Live Streaming</title>
+  </head>
+  <body>
+    <h1>Live Streaming</h1>
+
+    <div id="app">
+      <div id="hello">{{ message }}</div>
+      <div v-for="f in frames">
+        <img v-bind:id="`frame_${f}`" src="" />
+        <div v-bind:id="`frame_count_${f}`">Frame count: {{ count }}</div>
+      </div>
+    </div>
+    <script type="module">
+      import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+      createApp({
+        data() {
+          return {
+            message: "Hello Vue!",
+            frames: [0],
+            count: 0,
+          };
+        },
+        created() {
+          // this.frames = [...this.frames, 1];
+          this.fetchData();
+        },
+        methods: {
+          fetchData() {
             const ws = new WebSocket("ws://localhost:8000/ws");
-            const image = document.getElementById("frame");
-            image.onload = () => {
-                URL.revokeObjectURL(this.src); // release the blob URL once the image is loaded
-            };
             ws.onmessage = (event) => {
-                image.src = URL.createObjectURL(event.data);
+              const image = document.getElementById("frame_0");
+              image.src = URL.createObjectURL(event.data);
+              this.count++;
+              image.onload = () => {
+                URL.revokeObjectURL(this.src); // release the blob URL once the image is loaded
+              };
             };
-        </script>
-    </body>
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
 </html>

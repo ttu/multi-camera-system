@@ -7,8 +7,8 @@ from threading import Thread
 
 import cv2
 import uvicorn
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.staticfiles import StaticFiles
 
 from common_types import VideoFrame
 from server_check_status_db import check_status_from_db
@@ -18,8 +18,9 @@ from video_stream_consumer import receive_stream
 app = FastAPI()
 
 current_path = str(pathlib.Path().resolve())
-PATH = "templates" if current_path.endswith("src") else f"src{os.sep}templates"
-templates = Jinja2Templates(directory=PATH)
+path_base = "" if current_path.endswith("src") else f"src{os.sep}"
+PATH_STATIC = f"{path_base}templates"
+app.mount("/site", StaticFiles(directory=PATH_STATIC, html=True), name="static")
 
 
 @dataclass
@@ -68,13 +69,8 @@ def _get_frame():
             yield encodedImage
 
 
-@app.get("/")
-def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
 @app.websocket("/ws")
-async def get_stream(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
         for frame in _get_frame():

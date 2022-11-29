@@ -13,7 +13,6 @@ dependencies = [
     "numpy",
     "bleak",
     "fastapi",
-    "jinja2",
     "uvicorn[standard]"
 ]
 
