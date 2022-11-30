@@ -7,13 +7,23 @@
     <h1>Live Streaming</h1>
 
     <div id="app">
-      <div id="hello">{{ message }}</div>
-      <div v-for="f in frames">
-        <img v-bind:id="`frame_${f}`" src="" />
-        <div v-bind:id="`frame_count_${f}`">Frame count: {{ count }}</div>
+      <div>
+        <h3>Camera statuses</h3>
+        <div v-for="(status, name) in cameraStatus">
+          <div v-bind:id="`status_${name}`">{{ name }} - {{ status }}</div>
+        </div>
       </div>
       <div>
-        <button @click="startCamera">Start camera 0</button>
+        <h3>Camera streams</h3>
+        <div v-for="f in frames">
+          <img v-bind:id="`frame_${f}`" src="" />
+          <div v-bind:id="`frame_count_${f}`">Frame count: {{ count }}</div>
+        </div>
+      </div>
+      <div>
+        <h3>Camera actions</h3>
+        <button @click="controlCamera(0, true)">Start camera 0</button>
+        <button @click="controlCamera(0, false)">Stop camera 0</button>
       </div>
     </div>
     <script type="module">
@@ -22,7 +32,7 @@
       createApp({
         data() {
           return {
-            message: "Hello Vue!",
+            cameraStatus: {},
             frames: [0],
             count: 0,
           };
@@ -33,20 +43,39 @@
         },
         methods: {
           fetchData() {
-            const ws = new WebSocket("ws://localhost:8000/ws");
-            ws.onmessage = (event) => {
-              const image = document.getElementById("frame_0");
-              image.src = URL.createObjectURL(event.data);
-              this.count++;
-              image.onload = () => {
-                URL.revokeObjectURL(this.src); // release the blob URL once the image is loaded
-              };
+            const status_ws = new WebSocket(
+              "ws://localhost:8000/status-updates"
+            );
+            status_ws.onmessage = (event) => {
+              if (!event?.data) return;
+              const payload = JSON.parse(event.data);
+              if (payload.type == "status") {
+                this.cameraStatus[payload.sender] = payload.status;
+              }
+            };
+
+            const camera_ws = new WebSocket(
+              "ws://localhost:8000/camera-stream/0"
+            );
+            camera_ws.onmessage = (event) => {
+              if (!event?.data) return;
+              if (event.data instanceof Blob) {
+                this.count++;
+                const image = document.getElementById("frame_0");
+                image.src = URL.createObjectURL(event.data);
+                image.onload = () => {
+                  URL.revokeObjectURL(this.src);
+                };
+              }
             };
           },
-          async startCamera() {
+          async controlCamera(cameraId, state) {
             const response = await fetch(
-              "http://127.0.0.1:8000/start-camera/",
-              { method: "post", body: JSON.stringify({ camera_id: 0 }) }
+              "http://127.0.0.1:8000/control-camera/",
+              {
+                method: "post",
+                body: JSON.stringify({ camera_id: cameraId, state }),
+              }
             );
             const content = await response.json();
             console.log(content);

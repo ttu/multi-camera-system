@@ -1,4 +1,5 @@
 import asyncio
+import dataclasses
 import os
 import pathlib
 from asyncio.queues import Queue
@@ -9,8 +10,7 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from common_types import MemoryBufferImage
-from server_core import check_status, get_video_streams
+from server_core import SocketFramePayload, SocketPayload, SocketStatusPayload, check_camera_status, get_video_streams
 from server_toggle_start import set_camera_running
 
 app = FastAPI()
@@ -21,39 +21,56 @@ PATH_STATIC = f"{path_base}templates"
 app.mount("/site", StaticFiles(directory=PATH_STATIC, html=True), name="static")
 
 
-stream_queue: Queue[MemoryBufferImage] = Queue()
+status_queue: Queue[SocketStatusPayload] = Queue()
+stream_queue: Queue[SocketFramePayload] = Queue()
 
 
-async def _get_frame():
+async def _get_message_from_queue(queue: Queue[SocketPayload]):
     while True:
-        next = await stream_queue.get()
+        next = await queue.get()
         yield next
 
 
-@app.post("/start-camera/")
+@app.post("/control-camera/")
 async def start_camera(request: Request):
     data = await request.json()
     if data["camera_id"] != 0:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST)
 
-    set_camera_running(data["camera_id"], True)
-    return JSONResponse(content={"camera_id": data["camera_id"], "running": True})
+    set_camera_running(data["camera_id"], data["state"])
+    return JSONResponse(content={"camera_id": data["camera_id"], "state": data["state"]})
 
 
-@app.websocket("/ws")
+@app.websocket("/camera-stream/{camera_id}")
+async def websocket_stream_endpoint(websocket: WebSocket, camera_id: int):
+    await websocket.accept()
+    try:
+        async for message in _get_message_from_queue(stream_queue):
+            await websocket.send_bytes(message.frame)
+    except WebSocketDisconnect:
+        print("Client disconnected")
+    except Exception as e:
+        print(e)
+
+
+@app.websocket("/status-updates")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        async for frame in _get_frame():
-            await websocket.send_bytes(frame.tobytes())
+        async for message in _get_message_from_queue(status_queue):
+            await websocket.send_json(dataclasses.asdict(message))
     except WebSocketDisconnect:
         print("Client disconnected")
+    except Exception as e:
+        print(e)
 
 
 @app.on_event("startup")
 async def startup_event():
     print("Server starting")
-    check_thread = Thread(target=check_status, daemon=True)
+    check_thread = Thread(
+        target=lambda queue: asyncio.run(check_camera_status(queue)), args=[status_queue], daemon=True
+    )
     check_thread.start()
     stream_thread = Thread(target=lambda queue: asyncio.run(get_video_streams(queue)), args=[stream_queue], daemon=True)
     stream_thread.start()
