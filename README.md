@@ -37,22 +37,11 @@ python src/camera_main.py --dummy-mode True
 ![Detection](docs/detection.excalidraw.png)
 
 
-```
-User selects activate from web UI
-  Send start with BLE Id to server
+### Tech stack
 
-Server receives start request
-  Get configuration
-  Send ready signal with BLE Id to all configured cameras
-
-Camera computer receives ready signal with BLE device Id
-  Start camera
-  Start detecting BLE signal for device Id
-
-  Receive BLE signal
-    Start recording
-
-  Loose BLE signal
-    Stop recording
-    Stop camera
-```
+* Fast API
+* Python socket
+* SQLite
+* bleak BLE
+* Vue3
+* WebSocket

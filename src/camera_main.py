@@ -4,7 +4,7 @@ import time
 from threading import Thread
 
 from camera_record_listener_db import check_recording_from_db
-from camera_send_status_db import update_camera_status
+from camera_send_status_db import update_camera_address, update_camera_status
 from camera_start_listener_db import check_start_from_db
 from common_types import CameraStatus, VideoFrame
 from video_stream_producer import send_frame, try_init_socket
@@ -55,6 +55,13 @@ def _send_status(camera_id: int, status: CameraStatus):
     print("Sending status:", {camera_id, status.name})
 
 
+def _update_address_info(camera_id: int, socket: socket.socket | None):
+    local_address = socket.getsockname() if socket else None
+    address = f"{local_address[0]}:{local_address[1]}" if local_address else None
+    update_camera_address(camera_id, address)
+    print("Update address", {"camera_id": camera_id, "address": address})
+
+
 def _new_frame_received(socket: socket.socket | None, frame: VideoFrame):
     if STREAM_CAMERA.running and socket:
         send_frame(socket, frame)
@@ -79,8 +86,10 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
     start_thread = Thread(target=_check_camera_on, args=[camera_id], daemon=True)
     start_thread.start()
 
-    _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
     socket = None
+
+    _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
+    _update_address_info(camera_id, socket)
 
     while True:
 
@@ -93,6 +102,7 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
 
         if not socket:
             socket = try_init_socket()
+            _update_address_info(camera_id, socket)
 
         video_capture = prepare_camera(camera_id)
         print("camera ready", {"camera_id": camera_id})

@@ -13,7 +13,8 @@ def create_db():
                 id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 running BOOLEAN,
-                recording BOOLEAN
+                recording BOOLEAN,
+                address TEXT DEFAULT NULL
             );
             """
         )

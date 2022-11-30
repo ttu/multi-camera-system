@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from server_core import SocketFramePayload, SocketPayload, SocketStatusPayload, check_camera_status, get_video_streams
+from server_core import SocketFramePayload, SocketPayload, SocketStatusPayload, check_camera_info, get_video_streams
 from server_toggle_start import set_camera_running
 
 app = FastAPI()
@@ -68,9 +68,7 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.on_event("startup")
 async def startup_event():
     print("Server starting")
-    check_thread = Thread(
-        target=lambda queue: asyncio.run(check_camera_status(queue)), args=[status_queue], daemon=True
-    )
+    check_thread = Thread(target=lambda queue: asyncio.run(check_camera_info(queue)), args=[status_queue], daemon=True)
     check_thread.start()
     stream_thread = Thread(target=lambda queue: asyncio.run(get_video_streams(queue)), args=[stream_queue], daemon=True)
     stream_thread.start()

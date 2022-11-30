@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import cv2
 
-from server_check_status_db import check_status_from_db
+from server_check_status_db import check_camera_address_from_db, check_status_from_db
 from video_stream_consumer import receive_stream
 
 
@@ -27,19 +27,30 @@ SocketPayload = SocketStatusPayload | SocketFramePayload
 
 @dataclass
 class CameraConfig:
+    camera_id: int
+    address: str = None
+
+
+@dataclass
+class RouteConfig:
     route_id: int
-    cameras: list[int]
+    cameras: list[CameraConfig]
 
 
-camera_config = CameraConfig(1, [0, 1])
+route_config = RouteConfig(1, [CameraConfig(0), CameraConfig(1)])
 
 
-async def check_camera_status(queue: Queue[SocketStatusPayload]):
+async def check_camera_info(queue: Queue[SocketStatusPayload]):
     while True:
-        for camera_id in camera_config.cameras:
-            status = check_status_from_db(camera_id)
-            print("Camera status", {"camera_id": camera_id, "status": status})
-            await queue.put(SocketStatusPayload(f"{camera_config.route_id}: {camera_id}", status))
+        for camera in route_config.cameras:
+            status = check_status_from_db(camera.camera_id)
+            print("Camera status", {"camera_id": camera.camera_id, "status": status})
+            await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", status))
+
+            address = check_camera_address_from_db(camera.camera_id)
+            camera.address = address
+            print("Camera address", {"camera_id": camera.camera_id, "address": address})
+
         time.sleep(10)
 
 
