@@ -1,19 +1,18 @@
-import sqlite3 as sl
+import sqlite3
 
 import common_config
 
-con = sl.connect(common_config.DB_NAME)
-
 
 def create_db():
+    con = sqlite3.connect(common_config.DB_NAME)
     with con:
         con.execute(
             """
             CREATE TABLE camera (
                 id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
-                running BOOLEAN,
-                recording BOOLEAN,
+                running BOOLEAN DEFAULT FALSE,
+                recording BOOLEAN DEFAULT FALSE,
                 address TEXT DEFAULT NULL
             );
             """
@@ -23,7 +22,7 @@ def create_db():
             CREATE TABLE camera_status (
                 id INTEGER NOT NULL REFERENCES camera(id),
                 status TEXT NOT NULL,
-                time TIMESTAMP,
+                time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY(id, status, time)
             );
             """
@@ -31,11 +30,15 @@ def create_db():
 
 
 def seed_db():
-    sql = "INSERT INTO camera (id, name, running, recording) values(?, ?, ?, ?)"
-    data = [(0, "Main", False, False), (1, "Upper A", False, False), (2, "Lower B", False, False)]
+    con = sqlite3.connect(common_config.DB_NAME)
+
+    sql = "INSERT INTO camera (id, name) values(?, ?)"
+    data = [(0, "Main"), (1, "Upper A"), (2, "Lower B")]
 
     with con:
-        con.executemany(sql, data)
+        cursor = con.executemany(sql, data)
+        if cursor.rowcount == 0:
+            print("Error")
 
 
 create_db()

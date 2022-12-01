@@ -10,8 +10,8 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from data_store import update_camera_running
 from server_core import SocketFramePayload, SocketPayload, SocketStatusPayload, check_camera_info, get_video_streams
-from server_toggle_start import set_camera_running
 
 app = FastAPI()
 
@@ -34,11 +34,14 @@ async def _get_message_from_queue(queue: Queue[SocketPayload]):
 @app.post("/control-camera/")
 async def start_camera(request: Request):
     data = await request.json()
+    camera_id = data["camera_id"]
+    running_state = data["state"]
     if data["camera_id"] != 0:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST)
 
-    set_camera_running(data["camera_id"], data["state"])
-    return JSONResponse(content={"camera_id": data["camera_id"], "state": data["state"]})
+    update_camera_running(camera_id, running_state)
+    print("Set state", {"camera_id": camera_id, "running": running_state})
+    return JSONResponse(content={"camera_id": camera_id, "state": running_state})
 
 
 @app.websocket("/camera-stream/{camera_id}")

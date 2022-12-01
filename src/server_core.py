@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import cv2
 
-from server_check_status_db import check_camera_address_from_db, check_status_from_db
+from data_store import get_camera_address, get_camera_status
 from video_stream_consumer import receive_stream
 
 
@@ -43,11 +43,12 @@ route_config = RouteConfig(1, [CameraConfig(0), CameraConfig(1)])
 async def check_camera_info(queue: Queue[SocketStatusPayload]):
     while True:
         for camera in route_config.cameras:
-            status = check_status_from_db(camera.camera_id)
+            camera_status = get_camera_status(camera.camera_id)
+            status = camera_status.value if camera_status else None
             print("Camera status", {"camera_id": camera.camera_id, "status": status})
             await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", status))
 
-            address = check_camera_address_from_db(camera.camera_id)
+            address = get_camera_address(camera.camera_id)
             camera.address = address
             print("Camera address", {"camera_id": camera.camera_id, "address": address})
 
