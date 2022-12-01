@@ -49,7 +49,7 @@ async def start_camera(request: Request):
 async def websocket_stream_endpoint(websocket: WebSocket, camera_id: int):
     await websocket.accept()
     try:
-        async for message in _get_message_from_queue(stream_queue):
+        async for message in _get_message_from_queue(stream_queue):  # type: ignore
             await websocket.send_bytes(message.frame)
     except WebSocketDisconnect:
         print("Client disconnected")
@@ -61,7 +61,7 @@ async def websocket_stream_endpoint(websocket: WebSocket, camera_id: int):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        async for message in _get_message_from_queue(status_queue):
+        async for message in _get_message_from_queue(status_queue):  # type: ignore
             await websocket.send_json(dataclasses.asdict(message))
     except WebSocketDisconnect:
         print("Client disconnected")

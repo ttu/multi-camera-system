@@ -18,7 +18,7 @@ class SocketFramePayload:
 @dataclass
 class SocketStatusPayload:
     sender: str
-    status: str
+    status: str | None
     type: str = "status"
 
 
@@ -28,7 +28,7 @@ SocketPayload = SocketStatusPayload | SocketFramePayload
 @dataclass
 class CameraConfig:
     camera_id: int
-    address: str = None
+    address: str | None = None
 
 
 @dataclass

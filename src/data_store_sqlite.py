@@ -32,7 +32,7 @@ def get_camera_address(camera_id: int) -> str | None:
     return str(row[0]) if row else None
 
 
-def update_camera_address(camera_id: int, address: str) -> bool:
+def update_camera_address(camera_id: int, address: str | None) -> bool:
     con = sqlite3.connect(common_config.DB_NAME)
     with con:
         cursor = con.execute("UPDATE camera SET address = ? WHERE id = ?", (address, camera_id))

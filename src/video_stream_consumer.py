@@ -30,7 +30,7 @@ def _get_frame_data(conn: socket.socket, data: bytes) -> Tuple[bytes, bytes]:
         data = data[msg_size:]
         return data, frame_data
     except ConnectionResetError:
-        return None, None
+        return b"", b""
 
 
 def _on_new_client(client_socket: socket.socket, address: Address, queue: Queue[Tuple[Address, VideoFrame]]):

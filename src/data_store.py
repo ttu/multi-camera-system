@@ -38,7 +38,7 @@ def get_camera_address(camera_id: int) -> str | None:
             return str(row[0]) if row else None
 
 
-def update_camera_address(camera_id: int, address: str) -> bool:
+def update_camera_address(camera_id: int, address: str | None) -> bool:
     with psycopg.connect(common_config.DB_CONNECTION) as conn:
         with conn.cursor() as cur:
             cur.execute("UPDATE camera SET address = %s WHERE id = %s", (address, camera_id))

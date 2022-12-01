@@ -42,14 +42,14 @@ def _recording_on(camera_id: int) -> bool:
 def _check_camera_on(camera_id: int):
     while True:
         should_run = get_camera_running(camera_id)
-        RUN_CAMERA.running = should_run
+        RUN_CAMERA.running = should_run or False
         time.sleep(2)
 
 
 def _check_recording_on(camera_id: int):
     while RUN_RECORD_CHECK.running:
         should_record = get_camera_recording(camera_id)
-        RECORD_CAMERA.running = should_record
+        RECORD_CAMERA.running = should_record or False
         time.sleep(1)
 
 
@@ -77,7 +77,7 @@ def _get_camera_functions(use_dummy_mode: bool):
 
         return prepare_camera, run_camera_loop, shutdown_camera
     else:
-        from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera
+        from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera  # type: ignore
 
         return prepare_camera, run_camera_loop, shutdown_camera
 

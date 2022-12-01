@@ -29,6 +29,38 @@ def create_db():
                 );
                 """
             )
+            cur.execute(
+                """
+                CREATE TABLE camera_updates (
+                    id SERIAL PRIMARY KEY,
+                    insert_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    camera_id INT NOT NULL REFERENCES camera(id),
+                    update_type varchar(256),
+                    payload JSONB
+                );
+                """
+            )
+            cur.execute(
+                """
+                CREATE OR REPLACE FUNCTION camera_update_notify()
+                    RETURNS trigger AS
+                $$
+                BEGIN
+                    PERFORM pg_notify('camera_updates_channel', NEW.id::text);
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+                """
+            )
+            cur.execute(
+                """
+                CREATE TRIGGER camera_updates_update
+                    AFTER INSERT
+                    ON camera_updates
+                    FOR EACH ROW
+                EXECUTE PROCEDURE camera_update_notify();
+                """
+            )
 
 
 def seed_db():
