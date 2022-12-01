@@ -11,6 +11,8 @@ arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--camera-id", dest="camera_id", default=0)
 arg_parser.add_argument("--dummy-mode", dest="use_dummy_mode", default=False)
 
+# pylint: disable=import-outside-toplevel, no-else-return
+
 
 class RunFlag:
     running: bool = False
@@ -22,14 +24,17 @@ STREAM_CAMERA.running = True
 RECORD_CAMERA = RunFlag()
 RUN_RECORD_CHECK = RunFlag()
 
+
 # TODO: 2 ids are required. One system wide id and one for device camera id.
 DEFAULT_CAMERA_ID = 0
 
 
+# pylint: disable-next=unused-argument
 def _camera_on(camera_id: int) -> bool:
     return RUN_CAMERA.running
 
 
+# pylint: disable-next=unused-argument
 def _recording_on(camera_id: int) -> bool:
     return RECORD_CAMERA.running
 

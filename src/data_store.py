@@ -3,6 +3,8 @@ import psycopg
 import common_config
 from common_types import CameraStatus
 
+# pylint: disable=not-context-manager
+
 
 def get_camera_recording(camera_id: int) -> bool | None:
     with psycopg.connect(common_config.DB_CONNECTION) as conn:

@@ -2,6 +2,8 @@ import psycopg
 
 import common_config
 
+# pylint: disable=not-context-manager
+
 
 def create_db():
     with psycopg.connect(common_config.DB_CONNECTION) as conn:

@@ -20,6 +20,7 @@ def shutdown_camera(dummy_capture: VideoCaptureDevice):
     print("Camera stopping", {"camera_id": dummy_capture["camera_id"]})
 
 
+# pylint: disable-next=unused-argument
 def dispaly_show_frame(frame: VideoFrame):
     print("Showing new frame")
 

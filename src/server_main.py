@@ -37,13 +37,14 @@ async def start_camera(request: Request):
     camera_id = data["camera_id"]
     running_state = data["state"]
     if data["camera_id"] != 0:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST)
+        return JSONResponse(content={}, status_code=status.HTTP_400_BAD_REQUEST)
 
     update_camera_running(camera_id, running_state)
     print("Set state", {"camera_id": camera_id, "running": running_state})
     return JSONResponse(content={"camera_id": camera_id, "state": running_state})
 
 
+# pylint: disable=unused-argument
 @app.websocket("/camera-stream/{camera_id}")
 async def websocket_stream_endpoint(websocket: WebSocket, camera_id: int):
     await websocket.accept()

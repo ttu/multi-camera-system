@@ -6,6 +6,8 @@ from common_types import CameraStatus, VideoCaptureDevice, VideoFrame, VideoWrit
 
 # https://www.geeksforgeeks.org/saving-operated-video-from-a-webcam-using-opencv/
 
+# pylint: disable=duplicate-code, unused-argument
+
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
     print("Camera starting", {"camera_id": camera_id})
