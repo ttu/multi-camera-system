@@ -10,6 +10,28 @@ source .venv/bin/activate
 python -m pip install .[dev]
 ```
 
+#### Postgres
+
+```sh
+docker volume create postgres
+docker run -d \
+		-p 127.0.0.1:5432:5432 \
+		-v postgres:/var/lib/postgresql/data \
+		--name postgres \
+        -e POSTGRES_PASSWORD=mysecretpassword \
+		--restart always \
+		postgres:14.4
+```
+
+```sh
+docker exec -it postgres psql "postgres://postgres:mysecretpassword@localhost:5432/postgres" -c "DROP DATABASE camera_db"
+docker exec -it postgres psql "postgres://postgres:mysecretpassword@localhost:5432/postgres" -c "CREATE DATABASE camera_db"
+```
+
+Check `DB_CONNECTION` from `common_config.py`
+
+NOTE: `psycopg` is installed in binary mode
+
 ### Run
 
 ```sh
@@ -22,26 +44,30 @@ python src/camera_main.py
 ```
 
 Start the camera in dummy mode
+
 ```sh
 python src/camera_main.py --dummy-mode True
 ```
+
 ### Process
 
 #### System
+
 ![System](docs/system.excalidraw.png)
 
 #### PoC communication
+
 ![System](docs/poc_communication.excalidraw.png)
 
 #### Detection with BLE sensors & recording
-![Detection](docs/detection.excalidraw.png)
 
+![Detection](docs/detection.excalidraw.png)
 
 ### Tech stack
 
-* Fast API
-* Python socket
-* SQLite
-* bleak BLE
-* Vue3
-* WebSocket
+- Fast API
+- Python socket
+- PostgreSQL or SQLite
+- Bleak BLE
+- Vue3
+- WebSocket

@@ -13,7 +13,8 @@ dependencies = [
     "numpy",
     "bleak",
     "fastapi",
-    "uvicorn[standard]"
+    "uvicorn[standard]",
+    "psycopg-binary"
 ]
 
 [project.optional-dependencies]
