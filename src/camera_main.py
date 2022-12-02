@@ -3,8 +3,9 @@ import socket
 import time
 from threading import Thread
 
-from common_types import CameraStatus, VideoFrame
-from data_store import get_camera_recording, get_camera_running, update_camera_address, update_camera_status
+from common_types import CameraStatus, EventType, VideoFrame
+from data_store import update_camera_address, update_camera_status
+from event_handler import wait_for_events
 from video_stream_producer import send_frame, try_init_socket
 
 arg_parser = argparse.ArgumentParser()
@@ -41,16 +42,16 @@ def _recording_on(camera_id: int) -> bool:
 
 def _check_camera_on(camera_id: int):
     while True:
-        should_run = get_camera_running(camera_id)
-        RUN_CAMERA.running = should_run or False
-        time.sleep(2)
+        for event, _ in wait_for_events([EventType.CAMERA_PREPARE, EventType.CAMERA_TURNOFF], camera_id):
+            # should_run = get_camera_running(camera_id)
+            RUN_CAMERA.running = event == EventType.CAMERA_PREPARE.value
 
 
 def _check_recording_on(camera_id: int):
     while RUN_RECORD_CHECK.running:
-        should_record = get_camera_recording(camera_id)
-        RECORD_CAMERA.running = should_record or False
-        time.sleep(1)
+        for event, _ in wait_for_events([EventType.CAMERA_RECORD, EventType.CAMERA_STOP_RECORD], camera_id):
+            # should_record = get_camera_recording(camera_id)
+            RECORD_CAMERA.running = event == EventType.CAMERA_RECORD.value
 
 
 def _send_status(camera_id: int, status: CameraStatus):

@@ -22,8 +22,10 @@
       </div>
       <div>
         <h3>Camera actions</h3>
-        <button @click="controlCamera(0, true)">Start camera 0</button>
-        <button @click="controlCamera(0, false)">Stop camera 0</button>
+        <button @click="controlCamera(0, 'CAMERA_PREPARE')">Start - 0</button>
+        <button @click="controlCamera(0, 'CAMERA_TURNOFF')">Stop - 0</button>
+        <button @click="controlCamera(0, 'CAMERA_RECORD')">Start record - 0</button>
+        <button @click="controlCamera(0, 'CAMERA_STOP_RECORD')">Stop record - 0</button>
       </div>
     </div>
     <script type="module">

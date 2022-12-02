@@ -31,22 +31,22 @@ def create_db():
             )
             cur.execute(
                 """
-                CREATE TABLE camera_updates (
+                CREATE TABLE camera_event (
                     id SERIAL PRIMARY KEY,
                     insert_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     camera_id INT NOT NULL REFERENCES camera(id),
-                    update_type varchar(256),
-                    payload JSONB
+                    event_type varchar(256),
+                    payload TEXT
                 );
                 """
             )
             cur.execute(
                 """
-                CREATE OR REPLACE FUNCTION camera_update_notify()
+                CREATE OR REPLACE FUNCTION camera_event_notify()
                     RETURNS trigger AS
                 $$
                 BEGIN
-                    PERFORM pg_notify('camera_updates_channel', NEW.id::text);
+                    PERFORM pg_notify('camera_event_channel', NEW.event_type::text || ':' || NEW.camera_id::text);
                     RETURN NEW;
                 END;
                 $$ LANGUAGE plpgsql;
@@ -54,11 +54,10 @@ def create_db():
             )
             cur.execute(
                 """
-                CREATE TRIGGER camera_updates_update
-                    AFTER INSERT
-                    ON camera_updates
+                CREATE TRIGGER camera_event_update AFTER INSERT
+                    ON camera_event
                     FOR EACH ROW
-                EXECUTE PROCEDURE camera_update_notify();
+                EXECUTE PROCEDURE camera_event_notify();
                 """
             )
 

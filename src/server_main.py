@@ -10,7 +10,8 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from data_store import update_camera_running
+from common_types import EventType
+from event_handler import send_event
 from server_core import SocketFramePayload, SocketPayload, SocketStatusPayload, check_camera_info, get_video_streams
 
 app = FastAPI()
@@ -35,13 +36,16 @@ async def _get_message_from_queue(queue: Queue[SocketPayload]):
 async def start_camera(request: Request):
     data = await request.json()
     camera_id = data["camera_id"]
-    running_state = data["state"]
-    if data["camera_id"] != 0:
+    state = data["state"]
+    event = EventType(state)
+
+    if data["camera_id"] != 0 or not event:
         return JSONResponse(content={}, status_code=status.HTTP_400_BAD_REQUEST)
 
-    update_camera_running(camera_id, running_state)
-    print("Set state", {"camera_id": camera_id, "running": running_state})
-    return JSONResponse(content={"camera_id": camera_id, "state": running_state})
+    _ = send_event(event, camera_id)
+
+    print("Set state", {"camera_id": camera_id, "state": event})
+    return JSONResponse(content={"camera_id": camera_id, "state": event.value})
 
 
 # pylint: disable=unused-argument
