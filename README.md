@@ -30,7 +30,26 @@ docker exec -it postgres psql "postgres://postgres:mysecretpassword@localhost:54
 
 Check `DB_CONNECTION` from `common_config.py`.
 
-NOTE: `psycopg` is installed in binary mode
+NOTE: `psycopg` is installed in binary mode.
+
+### MinIO
+
+```sh
+docker volume create minio
+
+docker run \
+   -p 9000:9000 \
+   -p 9090:9090 \
+   --name minio \
+   -v minio:/data \
+   -e "MINIO_ROOT_USER=root" \
+   -e "MINIO_ROOT_PASSWORD=mysecretpassword" \
+   quay.io/minio/minio server /data --console-address ":9090"
+```
+
+Create a new access key from `http://127.0.0.1:9090/access-keys`.
+
+Update access and secret key from `common_config.py`.
 
 ### Run
 

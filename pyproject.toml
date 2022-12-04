@@ -15,7 +15,8 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "psycopg",
-    "psycopg-binary"
+    "psycopg-binary",
+    "minio"
 ]
 
 [project.optional-dependencies]

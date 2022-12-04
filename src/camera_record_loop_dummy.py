@@ -5,7 +5,7 @@ from typing import Callable
 
 import cv2
 
-from common_types import CameraStatus, VideoCaptureDevice, VideoFrame
+from common_types import CameraStatus, RecordedVideoInfo, VideoCaptureDevice, VideoFrame
 
 current_path = str(pathlib.Path().resolve())
 PATH = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"
@@ -67,7 +67,7 @@ def run_camera_loop(
     should_record: Callable[[], bool],
     notify_camera_status: Callable[[CameraStatus], None],
     new_frame: Callable[[VideoFrame], None],
-):
+) -> RecordedVideoInfo:
     state = CameraStatus.CAMERA_READY
     while True:
         state, state_func = _check_state(state, should_run, should_record, notify_camera_status)
@@ -75,3 +75,5 @@ def run_camera_loop(
             break
         state_func(dummy_capture, new_frame)
         time.sleep(1)
+
+    return f"{PATH}/images/cat.jpg"

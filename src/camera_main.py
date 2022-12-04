@@ -5,6 +5,7 @@ from threading import Thread
 
 import data_store
 import event_handler
+import file_upload
 import video_stream_producer
 from common_types import CameraStatus, EventType, VideoFrame
 
@@ -72,6 +73,11 @@ def _new_frame_received(socket: socket.socket | None, frame: VideoFrame):
         # dispaly_show_frame(frame)
 
 
+def _send_video_to_storage(file_path: str):
+    save_as_file_name = f"video_{round(time.time())}.avi"
+    file_upload.upload_file(save_as_file_name, file_path)
+
+
 def _get_camera_functions(use_dummy_mode: bool):
     if use_dummy_mode:
         from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
@@ -112,7 +118,7 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
         print("camera ready", {"camera_id": camera_id})
         _send_status(camera_id, CameraStatus.CAMERA_READY)
 
-        run_camera_loop(
+        record_info = run_camera_loop(
             video_capture,
             lambda: _camera_on(camera_id),
             lambda: _recording_on(camera_id),
@@ -122,6 +128,7 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
         shutdown_camera(video_capture)
 
         _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
+        _send_video_to_storage(record_info)
 
 
 if __name__ == "__main__":

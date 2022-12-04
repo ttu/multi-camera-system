@@ -9,6 +9,8 @@ MemoryBufferImage = Any
 # https://docs.python.org/3/library/socket.html#socket-families
 Address = Tuple[str, int]  # socket _RetAddress
 
+RecordedVideoInfo = str
+
 
 class CameraStatus(Enum):
     SYSTEM_STANDBY = "SYSTEM_STANDBY"
