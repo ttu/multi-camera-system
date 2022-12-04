@@ -18,7 +18,7 @@ docker run -d \
 		-p 127.0.0.1:5432:5432 \
 		-v postgres:/var/lib/postgresql/data \
 		--name postgres \
-        -e POSTGRES_PASSWORD=mysecretpassword \
+		-e POSTGRES_PASSWORD=mysecretpassword \
 		--restart always \
 		postgres:14.4
 ```
@@ -28,7 +28,7 @@ docker exec -it postgres psql "postgres://postgres:mysecretpassword@localhost:54
 docker exec -it postgres psql "postgres://postgres:mysecretpassword@localhost:5432/postgres" -c "CREATE DATABASE camera_db"
 ```
 
-Check `DB_CONNECTION` from `common_config.py`
+Check `DB_CONNECTION` from `common_config.py`.
 
 NOTE: `psycopg` is installed in binary mode
 

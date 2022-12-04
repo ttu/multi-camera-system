@@ -46,7 +46,10 @@ def create_db():
                     RETURNS trigger AS
                 $$
                 BEGIN
-                    PERFORM pg_notify('camera_event_channel', NEW.event_type::text || ':' || NEW.camera_id::text);
+                    PERFORM pg_notify(
+                        'camera_event_channel',
+                        NEW.event_type::text || ':' || NEW.camera_id::text || ':' || NEW.payload::text
+                    );
                     RETURN NEW;
                 END;
                 $$ LANGUAGE plpgsql;
