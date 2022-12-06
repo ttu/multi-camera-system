@@ -4,14 +4,14 @@ from dataclasses import dataclass
 
 import cv2
 
-from data_store import get_camera_address, get_camera_status
-from video_stream_consumer import receive_stream
+import data_store
+import video_stream_consumer
 
 
 @dataclass
 class SocketFramePayload:
     sender: str
-    frame: str
+    frame: bytes
     type: str = "frame"
 
 
@@ -43,12 +43,12 @@ route_config = RouteConfig(1, [CameraConfig(0), CameraConfig(1)])
 async def check_camera_info(queue: Queue[SocketStatusPayload]):
     while True:
         for camera in route_config.cameras:
-            camera_status = get_camera_status(camera.camera_id)
+            camera_status = data_store.get_camera_status(camera.camera_id)
             status = camera_status.value if camera_status else None
             print("Camera status", {"camera_id": camera.camera_id, "status": status})
             await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", status))
 
-            address = get_camera_address(camera.camera_id)
+            address = data_store.get_camera_address(camera.camera_id)
             camera.address = address
             print("Camera address", {"camera_id": camera.camera_id, "address": address})
 
@@ -60,7 +60,7 @@ async def check_camera_info(queue: Queue[SocketStatusPayload]):
 
 async def get_video_streams_and_show_in_window(queue: Queue[SocketFramePayload]):
     windows = {}
-    for address, frame in receive_stream():
+    for address, frame in video_stream_consumer.receive_stream():
         (flag, encodedImage) = cv2.imencode(".jpg", frame)
         if not flag:
             continue
@@ -77,7 +77,7 @@ async def get_video_streams_and_show_in_window(queue: Queue[SocketFramePayload])
 
 
 async def get_video_streams(queue: Queue[SocketFramePayload]):
-    for address, frame in receive_stream():
+    for address, frame in video_stream_consumer.receive_stream():
         (flag, encodedImage) = cv2.imencode(".jpg", frame)
         if not flag:
             continue
