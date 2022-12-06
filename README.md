@@ -15,12 +15,12 @@ python -m pip install .[dev]
 ```sh
 docker volume create postgres
 docker run -d \
-		-p 127.0.0.1:5432:5432 \
-		-v postgres:/var/lib/postgresql/data \
-		--name postgres \
-		-e POSTGRES_PASSWORD=mysecretpassword \
-		--restart always \
-		postgres:14.4
+   -p 127.0.0.1:5432:5432 \
+   -v postgres:/var/lib/postgresql/data \
+   --name postgres \
+   -e POSTGRES_PASSWORD=mysecretpassword \
+   --restart always \
+   postgres:14.4
 ```
 
 ```sh
@@ -44,6 +44,7 @@ docker run \
    -v minio:/data \
    -e "MINIO_ROOT_USER=root" \
    -e "MINIO_ROOT_PASSWORD=mysecretpassword" \
+   --restart always \
    quay.io/minio/minio server /data --console-address ":9090"
 ```
 

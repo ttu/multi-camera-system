@@ -1,4 +1,4 @@
-from typing import Generator, Tuple
+from typing import AsyncGenerator, Generator, Tuple
 
 import psycopg
 
@@ -8,17 +8,39 @@ from common_types import EventType
 # pylint: disable=not-context-manager
 
 
-def wait_for_events(event_types: list[EventType], identifier: int) -> Generator[Tuple[str, str], None, None]:
+def wait_for_events(
+    event_types: list[EventType], identifier: int | None = None
+) -> Generator[Tuple[str, Tuple[str, str]], None]:
     events_to_listen = [event.value for event in event_types]
     with psycopg.connect(common_config.DB_CONNECTION) as conn:
         conn.execute("LISTEN camera_event_channel;")
         conn.commit()
         gen = conn.notifies()
         for event in gen:
-            # payload: {event_type}:{camera_id}:{payload}
-            payload = event.payload.split(":")
-            if payload[0] in events_to_listen and payload[1] == str(identifier):
-                yield payload[0], payload[1]
+            # payload: {event_type}|{camera_id}|{payload}
+            payload = event.payload.split("|")
+            if payload[0] in events_to_listen:
+                if not identifier:
+                    yield payload[0], (payload[1], payload[2])
+                if payload[1] == str(identifier):
+                    yield payload[0], (payload[1], payload[2])
+
+
+async def wait_for_events_async(
+    event_types: list[EventType], identifier: int | None = None
+) -> AsyncGenerator[Tuple[str, Tuple[str, str]], None]:
+    events_to_listen = [event.value for event in event_types]
+    async with await psycopg.AsyncConnection.connect(common_config.DB_CONNECTION) as conn:
+        await conn.execute("LISTEN camera_event_channel;")
+        await conn.commit()
+        async for event in conn.notifies():
+            # payload: {event_type}|{camera_id}|{payload}
+            payload = event.payload.split("|")
+            if payload[0] in events_to_listen:
+                if not identifier:
+                    yield payload[0], (payload[1], payload[2])
+                if payload[1] == str(identifier):
+                    yield payload[0], (payload[1], payload[2])
 
 
 def send_event(event_type: EventType, camera_id: int, payload: str = "") -> bool:
