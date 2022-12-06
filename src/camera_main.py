@@ -64,6 +64,7 @@ def _update_address_info(camera_id: int, socket: socket.socket | None):
     local_address = socket.getsockname() if socket else None
     address = f"{local_address[0]}:{local_address[1]}" if local_address else None
     data_store.update_camera_address(camera_id, address)
+    event_handler.send_event(EventType.CAMERA_ADDRESS_UPDATE, camera_id, address)
     print("Update address", {"camera_id": camera_id, "address": address})
 
 

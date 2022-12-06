@@ -5,7 +5,9 @@ from dataclasses import dataclass
 import cv2
 
 import data_store
+import event_handler
 import video_stream_consumer
+from common_types import EventType
 
 
 @dataclass
@@ -40,6 +42,13 @@ class RouteConfig:
 route_config = RouteConfig(1, [CameraConfig(0), CameraConfig(1)])
 
 
+async def listen_for_server_events():
+    async for _, (camera_id, address) in event_handler.wait_for_events_async([EventType.CAMERA_ADDRESS_UPDATE]):
+        camera = [camera for camera in route_config.cameras if camera.camera_id == int(camera_id)][0]
+        camera.address = address
+        print("Camera address", {"camera_id": camera.camera_id, "address": address})
+
+
 async def check_camera_info(queue: Queue[SocketStatusPayload]):
     while True:
         for camera in route_config.cameras:
@@ -48,9 +57,9 @@ async def check_camera_info(queue: Queue[SocketStatusPayload]):
             print("Camera status", {"camera_id": camera.camera_id, "status": status})
             await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", status))
 
-            address = data_store.get_camera_address(camera.camera_id)
-            camera.address = address
-            print("Camera address", {"camera_id": camera.camera_id, "address": address})
+            # address = data_store.get_camera_address(camera.camera_id)
+            # camera.address = address
+            # print("Camera address", {"camera_id": camera.camera_id, "address": address})
 
         time.sleep(10)
 

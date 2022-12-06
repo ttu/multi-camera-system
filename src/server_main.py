@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 import os
 import pathlib
+import sys
 from asyncio.queues import Queue
 from threading import Thread
 
@@ -11,8 +12,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 import event_handler
+import server_core
 from common_types import EventType
-from server_core import SocketFramePayload, SocketStatusPayload, check_camera_info, get_video_streams
 
 app = FastAPI()
 
@@ -22,21 +23,21 @@ PATH_STATIC = f"{path_base}templates"
 app.mount("/site", StaticFiles(directory=PATH_STATIC, html=True), name="static")
 
 
-status_queue: Queue[SocketStatusPayload] = Queue()
-stream_queue: Queue[SocketFramePayload] = Queue()
+status_queue: Queue[server_core.SocketStatusPayload] = Queue()
+stream_queue: Queue[server_core.SocketFramePayload] = Queue()
 
 status_sockets: list[WebSocket] = []
-stream_sockets: list[WebSocket] = []
+stream_sockets: dict[str, list[WebSocket]] = []
 
 
-async def _send_queue_messages_json(queue: Queue[SocketStatusPayload], sockets: list[WebSocket]):
+async def _send_queue_messages_json(queue: Queue[server_core.SocketStatusPayload], sockets: list[WebSocket]):
     while True:
         next = await queue.get()
         for socket in sockets:
             await socket.send_json(dataclasses.asdict(next))
 
 
-async def _send_queue_messages_bytes(queue: Queue[SocketFramePayload], sockets: list[WebSocket]):
+async def _send_queue_messages_bytes(queue: Queue[server_core.SocketFramePayload], sockets: dict[str, list[WebSocket]]):
     while True:
         next = await queue.get()
         for socket in sockets:
@@ -94,12 +95,20 @@ async def startup_event():
 
     asyncio.create_task(_send_queue_messages_json(status_queue, status_sockets))
     asyncio.create_task(_send_queue_messages_bytes(stream_queue, stream_sockets))
+    asyncio.create_task(server_core.listen_for_server_events())
 
-    check_thread = Thread(target=lambda queue: asyncio.run(check_camera_info(queue)), args=[status_queue], daemon=True)
+    check_thread = Thread(
+        target=lambda queue: asyncio.run(server_core.check_camera_info(queue)), args=[status_queue], daemon=True
+    )
     check_thread.start()
-    stream_thread = Thread(target=lambda queue: asyncio.run(get_video_streams(queue)), args=[stream_queue], daemon=True)
+    stream_thread = Thread(
+        target=lambda queue: asyncio.run(server_core.get_video_streams(queue)), args=[stream_queue], daemon=True
+    )
     stream_thread.start()
 
 
 if __name__ == "__main__":
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     uvicorn.run(app, host="127.0.0.1", port=8000)

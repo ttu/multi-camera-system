@@ -10,7 +10,7 @@ from common_types import EventType
 
 def wait_for_events(
     event_types: list[EventType], identifier: int | None = None
-) -> Generator[Tuple[str, Tuple[str, str]], None]:
+) -> Generator[Tuple[str, Tuple[str, str]], None, None]:
     events_to_listen = [event.value for event in event_types]
     with psycopg.connect(common_config.DB_CONNECTION) as conn:
         conn.execute("LISTEN camera_event_channel;")
