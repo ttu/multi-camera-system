@@ -27,21 +27,32 @@ status_queue: Queue[server_core.SocketStatusPayload] = Queue()
 stream_queue: Queue[server_core.SocketFramePayload] = Queue()
 
 status_sockets: list[WebSocket] = []
-stream_sockets: dict[str, list[WebSocket]] = []
+stream_sockets: dict[str, list[WebSocket]] = {}
 
 
 async def _send_queue_messages_json(queue: Queue[server_core.SocketStatusPayload], sockets: list[WebSocket]):
     while True:
         next = await queue.get()
         for socket in sockets:
-            await socket.send_json(dataclasses.asdict(next))
+            try:
+                await socket.send_json(dataclasses.asdict(next))
+            except Exception as ex:
+                sockets.remove(socket)
+                print(ex)
 
 
 async def _send_queue_messages_bytes(queue: Queue[server_core.SocketFramePayload], sockets: dict[str, list[WebSocket]]):
     while True:
         next = await queue.get()
-        for socket in sockets:
-            await socket.send_bytes(next.frame)
+        if not sockets or str(next.sender) not in sockets:
+            continue
+        selected_sockets = sockets[str(next.sender)]
+        for socket in selected_sockets:
+            try:
+                await socket.send_bytes(next.frame)
+            except Exception as ex:
+                selected_sockets.remove(socket)
+                print(ex)
 
 
 @app.post("/control-camera/")
@@ -51,7 +62,8 @@ async def start_camera(request: Request):
     state = data["state"]
     event = EventType(state)
 
-    if data["camera_id"] != 0 or not event:
+    # TODO: Validate camera_id
+    if not event:
         return JSONResponse(content={}, status_code=status.HTTP_400_BAD_REQUEST)
 
     _ = event_handler.send_event(event, camera_id)
@@ -65,7 +77,9 @@ async def start_camera(request: Request):
 async def websocket_stream_endpoint(websocket: WebSocket, camera_id: int):
     await websocket.accept()
     try:
-        stream_sockets.append(websocket)
+        if camera_id not in stream_sockets:
+            stream_sockets[str(camera_id)] = []
+        stream_sockets[str(camera_id)].append(websocket)
         while True:
             await asyncio.sleep(100)
     except WebSocketDisconnect:

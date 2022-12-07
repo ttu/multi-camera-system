@@ -9,23 +9,40 @@
     <div id="app">
       <div>
         <h3>Camera statuses</h3>
-        <div v-for="(status, name) in cameraStatus">
-          <div v-bind:id="`status_${name}`">{{ name }} - {{ status }}</div>
+        <div v-for="data in cameraStatus">
+          <div v-bind:id="`status_${data[0]}`">
+            {{ data[0] }} - {{ data[1] }}
+          </div>
         </div>
       </div>
       <div>
         <h3>Camera streams</h3>
-        <div v-for="f in frames">
-          <img v-bind:id="`frame_${f}`" src="" />
-          <div v-bind:id="`frame_count_${f}`">Frame count: {{ count }}</div>
+        <div v-for="camera in cameras">
+          <img v-bind:id="`frame_${camera['cameraId']}`" src="" />
+          <div v-bind:id="`frame_count_${camera['cameraId']}`">
+            Frame count: {{ camera['frameCount'] }}
+          </div>
         </div>
       </div>
       <div>
         <h3>Camera actions</h3>
-        <button @click="controlCamera(0, 'CAMERA_PREPARE')">Start - 0</button>
-        <button @click="controlCamera(0, 'CAMERA_TURNOFF')">Stop - 0</button>
-        <button @click="controlCamera(0, 'CAMERA_RECORD')">Start record - 0</button>
-        <button @click="controlCamera(0, 'CAMERA_STOP_RECORD')">Stop record - 0</button>
+        <div v-for="camera in cameras">
+          <label style="padding-right: 10px">{{ camera["cameraId"] }}</label>
+          <button @click="controlCamera(camera['cameraId'], 'CAMERA_PREPARE')">
+            Start
+          </button>
+          <button @click="controlCamera(camera['cameraId'], 'CAMERA_TURNOFF')">
+            Stop
+          </button>
+          <button @click="controlCamera(camera['cameraId'], 'CAMERA_RECORD')">
+            Start record
+          </button>
+          <button
+            @click="controlCamera(camera['cameraId'], 'CAMERA_STOP_RECORD')"
+          >
+            Stop record
+          </button>
+        </div>
       </div>
     </div>
     <script type="module">
@@ -33,15 +50,38 @@
 
       createApp({
         data() {
+          const cameras = {
+            "1:0": {
+              route: 1,
+              cameraId: 0,
+              name: "cam 1",
+              status: "unknown",
+              frameCount: 0,
+            },
+            "1:1": {
+              route: 1,
+              cameraId: 1,
+              name: "route 2",
+              status: "unknown",
+              frameCount: 0,
+            },
+          };
+
           return {
-            cameraStatus: {},
-            frames: [0],
-            count: 0,
+            cameras: cameras,
+            count: {},
           };
         },
         created() {
-          // this.frames = [...this.frames, 1];
           this.fetchData();
+        },
+        computed: {
+          cameraStatus() {
+            return Object.entries(this.cameras).map((c) => [
+              c[1].name,
+              c[1].status,
+            ]);
+          },
         },
         methods: {
           fetchData() {
@@ -52,24 +92,31 @@
               if (!event?.data) return;
               const payload = JSON.parse(event.data);
               if (payload.type == "status") {
-                this.cameraStatus[payload.sender] = payload.status;
+                // payload.sender = route:camera_id e.g. 1:1
+                this.cameras[payload.sender].status = payload.status;
               }
             };
 
-            const camera_ws = new WebSocket(
-              "ws://localhost:8000/camera-stream/0"
-            );
-            camera_ws.onmessage = (event) => {
-              if (!event?.data) return;
-              if (event.data instanceof Blob) {
-                this.count++;
-                const image = document.getElementById("frame_0");
-                image.src = URL.createObjectURL(event.data);
-                image.onload = () => {
-                  URL.revokeObjectURL(this.src);
-                };
-              }
-            };
+            const sockets = Object.entries(this.cameras).map((value) => {
+              const id = value[1].cameraId;
+              const camera_ws = new WebSocket(
+                `ws://localhost:8000/camera-stream/` + id
+              );
+              camera_ws.onmessage = (event) => {
+                if (!event?.data) return;
+                if (event.data instanceof Blob) {
+                  // TODO: Fix id from frame count
+                  this.cameras["1:" + id].frameCount++;
+                  const image = document.getElementById(`frame_${id}`);
+                  image.src = URL.createObjectURL(event.data);
+                  image.onload = () => {
+                    URL.revokeObjectURL(this.src);
+                  };
+                }
+              };
+
+              return camera_ws;
+            });
           },
           async controlCamera(cameraId, state) {
             const response = await fetch(

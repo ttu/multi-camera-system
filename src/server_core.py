@@ -61,7 +61,7 @@ async def check_camera_info(queue: Queue[SocketStatusPayload]):
             # camera.address = address
             # print("Camera address", {"camera_id": camera.camera_id, "address": address})
 
-        time.sleep(10)
+        time.sleep(3)
 
 
 # TODO: Add route/camera_id to queued message
@@ -90,4 +90,7 @@ async def get_video_streams(queue: Queue[SocketFramePayload]):
         (flag, encodedImage) = cv2.imencode(".jpg", frame)
         if not flag:
             continue
-        await queue.put(SocketFramePayload(f"{address[0]}:{address[1]}", encodedImage.tobytes()))
+        key = f"{address[0]}:{address[1]}"
+        camera = [c for c in route_config.cameras if c.address == key]
+        if camera:
+            await queue.put(SocketFramePayload(camera[0].camera_id, encodedImage.tobytes()))
