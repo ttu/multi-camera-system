@@ -64,7 +64,7 @@ def _update_address_info(camera_id: int, socket: socket.socket | None):
     local_address = socket.getsockname() if socket else None
     address = f"{local_address[0]}:{local_address[1]}" if local_address else None
     data_store.update_camera_address(camera_id, address)
-    event_handler.send_event(EventType.CAMERA_ADDRESS_UPDATE, camera_id, address)
+    event_handler.send_event(EventType.CAMERA_ADDRESS_UPDATE, camera_id, address or "")
     print("Update address", {"camera_id": camera_id, "address": address})
 
 
@@ -80,14 +80,14 @@ def _send_video_to_storage(file_path: str):
 
 
 def _get_camera_functions(use_dummy_mode: bool):
+    import camera_record_loop
+
     if use_dummy_mode:
-        from camera_record_loop_dummy import prepare_camera, run_camera_loop, shutdown_camera
+        from camera_record_loop_dummy import prepare_camera, run_camera_loop
 
-        return prepare_camera, run_camera_loop, shutdown_camera
+        return prepare_camera, run_camera_loop, camera_record_loop.shutdown_camera
     else:
-        from camera_record_loop import prepare_camera, run_camera_loop, shutdown_camera  # type: ignore
-
-        return prepare_camera, run_camera_loop, shutdown_camera
+        return camera_record_loop.prepare_camera, camera_record_loop.run_camera_loop, camera_record_loop.shutdown_camera
 
 
 def main_loop(camera_id: int, use_dummy_mode: bool):

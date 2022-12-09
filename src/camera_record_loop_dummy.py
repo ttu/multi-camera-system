@@ -1,28 +1,24 @@
 import os
-import pathlib
 import time
 from typing import Callable
 
 import cv2
 
-from common_types import CameraStatus, RecordedVideoInfo, VideoCaptureDevice, VideoFrame
+import camera_record_loop
+from common_types import CameraStatus, RecordedVideoInfo, VideoCaptureDevice, VideoFrame, VideoWriter
 
-current_path = str(pathlib.Path().resolve())
-PATH = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"
+# pylint: disable=duplicate-code, unused-argument, protected-access
+
+VIDEO_1 = f"{camera_record_loop.source_path}{os.sep}sample_videos{os.sep}bike_1_360p.mp4"
+VIDEO_2 = f"{camera_record_loop.source_path}{os.sep}sample_videos{os.sep}bike_2_360p.mp4"
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
-    print("Camera starting", {"camera_id": camera_id})
-    return {"camera_id": camera_id}
-
-
-def shutdown_camera(dummy_capture: VideoCaptureDevice):
-    print("Camera stopping", {"camera_id": dummy_capture["camera_id"]})
-
-
-# pylint: disable-next=unused-argument
-def dispaly_show_frame(frame: VideoFrame):
-    print("Showing new frame")
+    print("Camera starting", {"camera_id": camera_id, "dummy_mode": True})
+    video_link = VIDEO_1 if int(camera_id) == 0 else VIDEO_2
+    cap = cv2.VideoCapture(video_link)
+    cap.set(cv2.CAP_PROP_FPS, 1)
+    return cap
 
 
 def _check_state(
@@ -44,36 +40,60 @@ def _check_state(
     return (CameraStatus.CAMERA_READY, _ready_state)
 
 
-def _get_frame():
-    image = cv2.imread(f"{PATH}/images/cat.jpg")
-    return image
+def _ready_state(
+    video_capture: VideoCaptureDevice, output: VideoWriter, new_frame: Callable[[VideoFrame], None], last_time_ms: float
+):
+    time_now_ms = time.time() * 1000
+    refresh_rate = 1 / 60 * 1000
+    elapsed_ms = time_now_ms - last_time_ms
+    if elapsed_ms < refresh_rate:
+        time.sleep((refresh_rate - elapsed_ms) / 1000)
 
-
-def _ready_state(dummy_capture: VideoCaptureDevice, new_frame: Callable[[VideoFrame], None]):
-    print("Waiting for signal", {"camera_id": dummy_capture["camera_id"]})
-    frame = _get_frame()
+    # reads frames from a camera
+    _, frame = video_capture.read()
     new_frame(frame)
 
+    return time.time() * 1000
 
-def _recording_state(dummy_capture: VideoCaptureDevice, new_frame: Callable[[VideoFrame], None]):
-    print("Recording", {"camera_id": dummy_capture["camera_id"]})
-    frame = _get_frame()
+    # Show input frame in the window
+    # cv2.imshow("Original", frame)
+
+
+def _recording_state(
+    video_capture: VideoCaptureDevice, output: VideoWriter, new_frame: Callable[[VideoFrame], None], last_time_ms: float
+):
+    time_now_ms = time.time() * 1000
+    refresh_rate = 1 / 60 * 1000
+    elapsed_ms = time_now_ms - last_time_ms
+    if elapsed_ms < refresh_rate:
+        time.sleep((refresh_rate - elapsed_ms) / 1000)
+
+    _, frame = video_capture.read()
     new_frame(frame)
+    camera_record_loop._write_to_output(frame, output)
+
+    return time.time() * 1000
 
 
 def run_camera_loop(
-    dummy_capture: VideoCaptureDevice,
+    video_capture: VideoCaptureDevice,
     should_run: Callable[[], bool],
     should_record: Callable[[], bool],
     notify_camera_status: Callable[[CameraStatus], None],
     new_frame: Callable[[VideoFrame], None],
 ) -> RecordedVideoInfo:
     state = CameraStatus.CAMERA_READY
+    out = camera_record_loop._create_output()
+
+    last_time = time.time() * 1000
     while True:
         state, state_func = _check_state(state, should_run, should_record, notify_camera_status)
         if not state_func:
             break
-        state_func(dummy_capture, new_frame)
-        time.sleep(1)
+        last_time = state_func(video_capture, out, new_frame, last_time)
 
-    return f"{PATH}/images/cat.jpg"
+    camera_record_loop._release_output(out)
+    # De-allocate any associated memory usage
+    # cv2.destroyAllWindows()
+
+    return camera_record_loop.VIDEO_RECORD_FULL_PATH
