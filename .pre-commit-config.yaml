@@ -13,3 +13,21 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
+  - repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        require_serial: true
+    -   id: flake8
+        name: flake8
+        entry: flake8
+        language: system
+        types: [python]
+    -   id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        types: [python]
