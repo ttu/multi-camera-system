@@ -86,7 +86,7 @@ async def websocket_stream_endpoint(websocket: WebSocket, camera_id: int):
         print("Client disconnected")
     except Exception as e:
         print(e)
-    stream_sockets.remove(websocket)
+    stream_sockets[str(camera_id)].remove(websocket)
 
 
 @app.websocket("/status-updates")

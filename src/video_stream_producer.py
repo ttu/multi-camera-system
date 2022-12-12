@@ -16,9 +16,14 @@ def try_init_socket() -> socket.socket | None:
         return None
 
 
-def send_frame(socket: socket.socket, frame: VideoFrame):
+def send_frame(s: socket.socket, frame: VideoFrame) -> bool:
     x_as_bytes = pickle.dumps(frame)
     size = len(x_as_bytes)
     p = struct.pack("I", size)
     data_to_send = p + x_as_bytes
-    socket.sendall(data_to_send)
+    try:
+        s.sendall(data_to_send)
+        return True
+    except Exception:
+        print("Socket is out")
+        return False

@@ -2,6 +2,7 @@ import argparse
 import socket
 import time
 from threading import Thread
+from typing import Callable
 
 import data_store
 import event_handler
@@ -20,11 +21,16 @@ class RunFlag:
     running: bool = False
 
 
+class SocketWrapper:
+    socket_object: socket.socket | None = None
+
+
 RUN_CAMERA = RunFlag()
 STREAM_CAMERA = RunFlag()
 STREAM_CAMERA.running = True
 RECORD_CAMERA = RunFlag()
 
+SOCKET = SocketWrapper()
 
 # TODO: 2 ids are required. One system wide id and one for device camera id.
 DEFAULT_CAMERA_ID = 0
@@ -60,18 +66,20 @@ def _send_status(camera_id: int, status: CameraStatus):
     print("Sending status:", {camera_id, status.name})
 
 
-def _update_address_info(camera_id: int, socket: socket.socket | None):
-    local_address = socket.getsockname() if socket else None
+def _update_address_info(camera_id: int, s: socket.socket | None):
+    local_address = s.getsockname() if s else None
     address = f"{local_address[0]}:{local_address[1]}" if local_address else None
     data_store.update_camera_address(camera_id, address)
     event_handler.send_event(EventType.CAMERA_ADDRESS_UPDATE, camera_id, address or "")
     print("Update address", {"camera_id": camera_id, "address": address})
 
 
-def _new_frame_received(socket: socket.socket | None, frame: VideoFrame):
-    if STREAM_CAMERA.running and socket:
-        video_stream_producer.send_frame(socket, frame)
-        # dispaly_show_frame(frame)
+def _new_frame_received(s: socket.socket | None, frame: VideoFrame, request_socket_update: Callable[[], None]):
+    s = s if s else request_socket_update()
+    if STREAM_CAMERA.running and s:
+        success = video_stream_producer.send_frame(s, frame)
+        if not success:
+            request_socket_update()
 
 
 def _send_video_to_storage(file_path: str):
@@ -97,10 +105,12 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
     event_thread = Thread(target=_listen_camera_events, args=[camera_id], daemon=True)
     event_thread.start()
 
-    socket = None
-
     _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
-    _update_address_info(camera_id, socket)
+    _update_address_info(camera_id, SOCKET.socket_object)
+
+    def _request_socket_update():
+        SOCKET.socket_object = video_stream_producer.try_init_socket()  # noqa: F841
+        _update_address_info(camera_id, SOCKET.socket_object)
 
     while True:
 
@@ -111,9 +121,8 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
 
         _send_status(camera_id, CameraStatus.CAMERA_PREPARE)
 
-        if not socket:
-            socket = video_stream_producer.try_init_socket()
-            _update_address_info(camera_id, socket)
+        if not SOCKET.socket_object:
+            _request_socket_update()
 
         video_capture = prepare_camera(camera_id)
         print("camera ready", {"camera_id": camera_id})
@@ -124,7 +133,7 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
             lambda: _camera_on(camera_id),
             lambda: _recording_on(camera_id),
             lambda status: _send_status(camera_id, status),
-            lambda frame: _new_frame_received(socket, frame),
+            lambda frame: _new_frame_received(SOCKET.socket_object, frame, _request_socket_update),
         )
         shutdown_camera(video_capture)
 
