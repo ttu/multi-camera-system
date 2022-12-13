@@ -24,23 +24,16 @@ def prepare_camera(camera_id: int) -> VideoCaptureDevice:
 
 
 def shutdown_camera(video_capture: VideoCaptureDevice):
-    # Release webcam
     video_capture.release()
 
 
-def dispaly_show_frame(frame: VideoFrame):
-    cv2.imshow("Original", frame)
-    cv2.waitKey(1)
-
-
 def _create_output() -> VideoWriter:
-    # Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
     out = cv2.VideoWriter(VIDEO_RECORD_FULL_PATH, fourcc, 20.0, (640, 480))
-    return out
+    return VideoWriter(out)
 
 
-def _write_to_output(frame, out: VideoWriter):
+def _write_to_output(frame: VideoFrame, out: VideoWriter):
     out.write(frame)
 
 
@@ -72,11 +65,8 @@ def _ready_state(
     output: VideoWriter,
     new_frame: Callable[[VideoFrame], None],
 ):
-    # reads frames from a camera
     _, frame = video_capture.read()
     new_frame(frame)
-    # Show input frame in the window
-    # cv2.imshow("Original", frame)
 
 
 def _recording_state(
@@ -106,7 +96,5 @@ def run_camera_loop(
         state_func(video_capture, out, new_frame)
 
     _release_output(out)
-    # De-allocate any associated memory usage
-    # cv2.destroyAllWindows()
 
-    return VIDEO_RECORD_FULL_PATH
+    return VIDEO_RECORD_FULL_PATH if out.has_data else ""

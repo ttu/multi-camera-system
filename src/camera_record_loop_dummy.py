@@ -49,14 +49,10 @@ def _ready_state(
     if elapsed_ms < refresh_rate:
         time.sleep((refresh_rate - elapsed_ms) / 1000)
 
-    # reads frames from a camera
     _, frame = video_capture.read()
     new_frame(frame)
 
     return time.time() * 1000
-
-    # Show input frame in the window
-    # cv2.imshow("Original", frame)
 
 
 def _recording_state(
@@ -93,7 +89,5 @@ def run_camera_loop(
         last_time = state_func(video_capture, out, new_frame, last_time)
 
     camera_record_loop._release_output(out)
-    # De-allocate any associated memory usage
-    # cv2.destroyAllWindows()
 
-    return camera_record_loop.VIDEO_RECORD_FULL_PATH
+    return camera_record_loop.VIDEO_RECORD_FULL_PATH if out.has_data else ""

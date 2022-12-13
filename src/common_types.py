@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Any, Tuple
 
-VideoWriter = Any  # cv2.VideoWriter
 VideoCaptureDevice = Any  # cv2.VideoCapture
 VideoFrame = Any
 MemoryBufferImage = Any
@@ -10,6 +9,19 @@ MemoryBufferImage = Any
 Address = Tuple[str, int]  # socket _RetAddress
 
 RecordedVideoInfo = str
+
+
+class VideoWriter:
+    def __init__(self, output):
+        self.output = output
+        self.has_data = False
+
+    def write(self, data):
+        self.has_data = True
+        self.output.write(data)
+
+    def release(self):
+        self.output.release()
 
 
 class CameraStatus(Enum):
