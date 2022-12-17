@@ -28,13 +28,19 @@
         <h3>Camera actions</h3>
         <div v-for="camera in cameras">
           <label style="padding-right: 10px">{{ camera["cameraId"] }}</label>
-          <button @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_PREPARE')">
+          <button
+            @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_PREPARE')"
+          >
             Start
           </button>
-          <button @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_TURNOFF')">
+          <button
+            @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_TURNOFF')"
+          >
             Stop
           </button>
-          <button @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_RECORD')">
+          <button
+            @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_RECORD')"
+          >
             Start record
           </button>
           <button
@@ -50,30 +56,14 @@
 
       createApp({
         data() {
-          const cameras = {
-            "1:0": {
-              route: 1,
-              cameraId: 0,
-              name: "cam 1",
-              status: "unknown",
-              frameCount: 0,
-            },
-            "1:1": {
-              route: 1,
-              cameraId: 1,
-              name: "route 2",
-              status: "unknown",
-              frameCount: 0,
-            },
-          };
-
           return {
-            cameras: cameras,
+            cameras: {},
             count: {},
           };
         },
-        mounted() {
-          this.fetchData();
+        async mounted() {
+          await this.fetchCameraData();
+          this.initUpdates();
         },
         computed: {
           cameraStatus() {
@@ -84,7 +74,12 @@
           },
         },
         methods: {
-          fetchData() {
+          async fetchCameraData() {
+            const response = await fetch("http://127.0.0.1:8000/camera-info/");
+            const content = await response.json();
+            this.cameras = content;
+          },
+          initUpdates() {
             const status_ws = new WebSocket(
               "ws://localhost:8000/status-updates"
             );

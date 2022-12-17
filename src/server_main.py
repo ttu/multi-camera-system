@@ -55,8 +55,29 @@ async def _send_queue_messages_bytes(queue: Queue[server_core.SocketFramePayload
                 print(ex)
 
 
+@app.get("/camera-info/")
+async def camera_info(request: Request):
+    camera_data = {
+        "1:0": {
+            "route": 1,
+            "cameraId": 0,
+            "name": "cam 1",
+            "status": "unknown",
+            "frameCount": 0,
+        },
+        "1:1": {
+            "route": 1,
+            "cameraId": 1,
+            "name": "route 2",
+            "status": "unknown",
+            "frameCount": 0,
+        },
+    }
+    return JSONResponse(content=camera_data)
+
+
 @app.post("/control-camera/")
-async def start_camera(request: Request):
+async def control_camera(request: Request):
     data = await request.json()
     camera_id = data["camera_id"]
     state = data["state"]
