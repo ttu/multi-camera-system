@@ -1,4 +1,3 @@
-import time
 from asyncio.queues import Queue
 from dataclasses import dataclass
 
@@ -42,26 +41,29 @@ class RouteConfig:
 route_config = RouteConfig(1, [CameraConfig(0), CameraConfig(1)])
 
 
-async def listen_for_server_events():
-    async for _, (camera_id, address) in event_handler.wait_for_events_async([EventType.CAMERA_ADDRESS_UPDATE]):
-        camera = [camera for camera in route_config.cameras if camera.camera_id == int(camera_id)][0]
+async def listen_for_server_events(queue: Queue[SocketStatusPayload]):
+    async for event, (camera_id, payload) in event_handler.wait_for_events_async(
+        [EventType.CAMERA_ADDRESS_UPDATE, EventType.CAMERA_STATUS_UPDATE]
+    ):
+        if event == EventType.CAMERA_ADDRESS_UPDATE.value:
+            camera = [camera for camera in route_config.cameras if camera.camera_id == int(camera_id)][0]
+            camera.address = payload
+            print("Camera address", {"camera_id": camera.camera_id, "address": payload})
+        elif event == EventType.CAMERA_STATUS_UPDATE.value:
+            await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", payload))
+            print("Camera status", {"camera_id": camera_id, "status": payload})
+
+
+async def check_initial_camera_info(queue: Queue[SocketStatusPayload]):
+    for camera in route_config.cameras:
+        address = data_store.get_camera_address(camera.camera_id)
         camera.address = address
         print("Camera address", {"camera_id": camera.camera_id, "address": address})
 
-
-async def check_camera_info(queue: Queue[SocketStatusPayload]):
-    while True:
-        for camera in route_config.cameras:
-            camera_status = data_store.get_camera_status(camera.camera_id)
-            status = camera_status.value if camera_status else None
-            print("Camera status", {"camera_id": camera.camera_id, "status": status})
-            await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", status))
-
-            # address = data_store.get_camera_address(camera.camera_id)
-            # camera.address = address
-            # print("Camera address", {"camera_id": camera.camera_id, "address": address})
-
-        time.sleep(3)
+        camera_status = data_store.get_camera_status(camera.camera_id)
+        status = camera_status.value if camera_status else None
+        print("Camera status", {"camera_id": camera.camera_id, "status": status})
+        await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", status))
 
 
 async def get_video_streams_and_show_in_window(queue: Queue[SocketFramePayload]):

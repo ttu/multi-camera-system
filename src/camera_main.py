@@ -63,6 +63,7 @@ def _listen_camera_events(camera_id: int):
 
 def _send_status(camera_id: int, status: CameraStatus):
     data_store.update_camera_status(camera_id, status)
+    event_handler.send_event(EventType.CAMERA_STATUS_UPDATE, camera_id, status.name)
     print("Sending status:", {camera_id, status.name})
 
 

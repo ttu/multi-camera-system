@@ -107,14 +107,12 @@ async def websocket_endpoint(websocket: WebSocket):
 async def startup_event():
     print("Server starting")
 
+    server_core.check_initial_camera_info(status_queue)
+
     asyncio.create_task(_send_queue_messages_json(status_queue, status_sockets))
     asyncio.create_task(_send_queue_messages_bytes(stream_queue, stream_sockets))
-    asyncio.create_task(server_core.listen_for_server_events())
+    asyncio.create_task(server_core.listen_for_server_events(status_queue))
 
-    check_thread = Thread(
-        target=lambda queue: asyncio.run(server_core.check_camera_info(queue)), args=[status_queue], daemon=True
-    )
-    check_thread.start()
     stream_thread = Thread(
         target=lambda queue: asyncio.run(server_core.get_video_streams(queue)), args=[stream_queue], daemon=True
     )
