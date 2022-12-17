@@ -49,29 +49,34 @@ def _recording_on(camera_id: int) -> bool:
 def _listen_camera_events(camera_id: int):
     while True:
         for event, _ in event_handler.wait_for_events(
-            [EventType.CAMERA_PREPARE, EventType.CAMERA_TURNOFF, EventType.CAMERA_RECORD, EventType.CAMERA_STOP_RECORD],
+            [
+                EventType.CAMERA_COMMAND_PREPARE,
+                EventType.CAMERA_COMMAND_TURNOFF,
+                EventType.CAMERA_COMMAND_RECORD,
+                EventType.CAMERA_COMMAND_STOP_RECORD,
+            ],
             camera_id,
         ):
             # should_run = get_camera_running(camera_id)
-            if event in [EventType.CAMERA_PREPARE.value, EventType.CAMERA_TURNOFF.value]:
-                RUN_CAMERA.running = event == EventType.CAMERA_PREPARE.value
+            if event in [EventType.CAMERA_COMMAND_PREPARE.value, EventType.CAMERA_COMMAND_TURNOFF.value]:
+                RUN_CAMERA.running = event == EventType.CAMERA_COMMAND_PREPARE.value
                 data_store.update_camera_running(camera_id, RUN_CAMERA.running)
-            elif event in [EventType.CAMERA_RECORD.value, EventType.CAMERA_STOP_RECORD.value]:
-                RECORD_CAMERA.running = event == EventType.CAMERA_RECORD.value
+            elif event in [EventType.CAMERA_COMMAND_RECORD.value, EventType.CAMERA_COMMAND_STOP_RECORD.value]:
+                RECORD_CAMERA.running = event == EventType.CAMERA_COMMAND_RECORD.value
                 data_store.update_camera_recording(camera_id, RECORD_CAMERA.running)
 
 
 def _send_status(camera_id: int, status: CameraStatus):
     data_store.update_camera_status(camera_id, status)
-    event_handler.send_event(EventType.CAMERA_STATUS_UPDATE, camera_id, status.name)
-    print("Sending status:", {camera_id, status.name})
+    event_handler.send_event(EventType.CAMERA_UPDATE_STATUS, camera_id, status.name)
+    print("Update status", {"camera_id": camera_id, "status": status.name})
 
 
 def _update_address_info(camera_id: int, s: socket.socket | None):
     local_address = s.getsockname() if s else None
     address = f"{local_address[0]}:{local_address[1]}" if local_address else None
     data_store.update_camera_address(camera_id, address)
-    event_handler.send_event(EventType.CAMERA_ADDRESS_UPDATE, camera_id, address or "")
+    event_handler.send_event(EventType.CAMERA_UPDATE_ADDRESS, camera_id, address or "")
     print("Update address", {"camera_id": camera_id, "address": address})
 
 

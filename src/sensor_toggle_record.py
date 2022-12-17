@@ -9,7 +9,7 @@ if __name__ == "__main__":
     id = int(args[0]) if args else 0
 
     is_recording = data_store.get_camera_recording(id)
-    event = EventType.CAMERA_STOP_RECORD if is_recording else EventType.CAMERA_RECORD
+    event = EventType.CAMERA_COMMAND_STOP_RECORD if is_recording else EventType.CAMERA_COMMAND_RECORD
     result = event_handler.send_event(event, id)
 
     print("New state", {"camera_id": id, "event": event.value})

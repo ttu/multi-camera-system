@@ -43,14 +43,14 @@ route_config = RouteConfig(1, [CameraConfig(0), CameraConfig(1)])
 
 async def listen_for_server_events(queue: Queue[SocketStatusPayload]):
     async for event, (camera_id, payload) in event_handler.wait_for_events_async(
-        [EventType.CAMERA_ADDRESS_UPDATE, EventType.CAMERA_STATUS_UPDATE]
+        [EventType.CAMERA_UPDATE_ADDRESS, EventType.CAMERA_UPDATE_STATUS]
     ):
-        if event == EventType.CAMERA_ADDRESS_UPDATE.value:
+        if event == EventType.CAMERA_UPDATE_ADDRESS.value:
             camera = [camera for camera in route_config.cameras if camera.camera_id == int(camera_id)][0]
             camera.address = payload
             print("Camera address", {"camera_id": camera.camera_id, "address": payload})
-        elif event == EventType.CAMERA_STATUS_UPDATE.value:
-            await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera.camera_id}", payload))
+        elif event == EventType.CAMERA_UPDATE_STATUS.value:
+            await queue.put(SocketStatusPayload(f"{route_config.route_id}:{camera_id}", payload))
             print("Camera status", {"camera_id": camera_id, "status": payload})
 
 

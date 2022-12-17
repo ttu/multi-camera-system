@@ -28,17 +28,17 @@
         <h3>Camera actions</h3>
         <div v-for="camera in cameras">
           <label style="padding-right: 10px">{{ camera["cameraId"] }}</label>
-          <button @click="controlCamera(camera['cameraId'], 'CAMERA_PREPARE')">
+          <button @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_PREPARE')">
             Start
           </button>
-          <button @click="controlCamera(camera['cameraId'], 'CAMERA_TURNOFF')">
+          <button @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_TURNOFF')">
             Stop
           </button>
-          <button @click="controlCamera(camera['cameraId'], 'CAMERA_RECORD')">
+          <button @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_RECORD')">
             Start record
           </button>
           <button
-            @click="controlCamera(camera['cameraId'], 'CAMERA_STOP_RECORD')"
+            @click="controlCamera(camera['cameraId'], 'CAMERA_COMMAND_STOP_RECORD')"
           >
             Stop record
           </button>
