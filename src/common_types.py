@@ -28,6 +28,7 @@ class VideoWriter:
 @dataclass
 class CameraInfo:
     camera_id: int
+    name: str
     address: str | None = None
     address_update_time: str | None = None
     status: str | None = None

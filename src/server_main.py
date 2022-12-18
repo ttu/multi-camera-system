@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 
 import event_handler
 import server_core
-from common_types import EventType
+from common_types import CameraInfo, EventType, RouteInfo
 
 app = FastAPI()
 
@@ -55,24 +55,22 @@ async def _send_queue_messages_bytes(queue: Queue[server_core.SocketFramePayload
                 print(ex)
 
 
+def _map_camera_to_dto(camera: CameraInfo):
+    return {
+        "cameraId": camera.camera_id,
+        "name": camera.name,
+        "status": camera.status,
+        "frameCount": 0,
+    }
+
+
+def _map_route_info_to_dto(route: RouteInfo):
+    return {f"{route.route_id}:{c.camera_id}": _map_camera_to_dto(c) for c in route.cameras}
+
+
 @app.get("/camera-info/")
 async def camera_info(request: Request):
-    camera_data = {
-        "1:0": {
-            "route": 1,
-            "cameraId": 0,
-            "name": "cam 1",
-            "status": "unknown",
-            "frameCount": 0,
-        },
-        "1:1": {
-            "route": 1,
-            "cameraId": 1,
-            "name": "route 2",
-            "status": "unknown",
-            "frameCount": 0,
-        },
-    }
+    camera_data = _map_route_info_to_dto(server_core.route_info)
     return JSONResponse(content=camera_data)
 
 

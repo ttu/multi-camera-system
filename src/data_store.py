@@ -43,7 +43,7 @@ def get_camera_info(camera_id: int) -> CameraInfo | None:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT ca.id, ca.address, cs.status, cs.status_update_time FROM camera ca
+                SELECT ca.id, ca.name, ca.address, cs.status, cs.status_update_time FROM camera ca
                 JOIN (
                     SELECT id, status, time as status_update_time
                     FROM camera_status
@@ -56,7 +56,7 @@ def get_camera_info(camera_id: int) -> CameraInfo | None:
                 ({"camera_id": camera_id}),
             )
             row = cur.fetchone()
-            return CameraInfo(row[0], row[1], None, row[2], row[3]) if row else None
+            return CameraInfo(row[0], row[1], row[2], None, row[3], row[4]) if row else None
 
 
 def update_camera_address(camera_id: int, address: str | None) -> bool:
