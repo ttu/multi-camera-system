@@ -1,7 +1,7 @@
 import psycopg
 
 import common_config
-from common_types import CameraStatus
+from common_types import CameraInfo, CameraStatus
 
 # pylint: disable=not-context-manager
 
@@ -36,6 +36,27 @@ def get_camera_address(camera_id: int) -> str | None:
             cur.execute("SELECT address FROM camera WHERE id = %s", (camera_id,))
             row = cur.fetchone()
             return str(row[0]) if row else None
+
+
+def get_camera_info(camera_id: int) -> CameraInfo | None:
+    with psycopg.connect(common_config.DB_CONNECTION) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT ca.id, ca.address, cs.status, cs.status_update_time FROM camera ca
+                JOIN (
+                    SELECT id, status, time as status_update_time
+                    FROM camera_status
+                    WHERE id = %(camera_id)s
+                    ORDER BY time DESC LIMIT 1
+                ) cs
+                ON ca.id = cs.id
+                WHERE ca.id = %(camera_id)s
+                """,
+                ({"camera_id": camera_id}),
+            )
+            row = cur.fetchone()
+            return CameraInfo(row[0], row[1], None, row[2], row[3]) if row else None
 
 
 def update_camera_address(camera_id: int, address: str | None) -> bool:

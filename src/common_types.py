@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Tuple
 
@@ -22,6 +23,21 @@ class VideoWriter:
 
     def release(self):
         self.output.release()
+
+
+@dataclass
+class CameraInfo:
+    camera_id: int
+    address: str | None = None
+    address_update_time: str | None = None
+    status: str | None = None
+    status_update_time: str | None = None
+
+
+@dataclass
+class RouteInfo:
+    route_id: int
+    cameras: list[CameraInfo]
 
 
 class CameraStatus(Enum):

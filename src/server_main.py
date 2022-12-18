@@ -128,7 +128,7 @@ async def websocket_endpoint(websocket: WebSocket):
 async def startup_event():
     print("Server starting")
 
-    server_core.check_initial_camera_info(status_queue)
+    await server_core.check_initial_camera_info(status_queue)
 
     asyncio.create_task(_send_queue_messages_json(status_queue, status_sockets))
     asyncio.create_task(_send_queue_messages_bytes(stream_queue, stream_sockets))
