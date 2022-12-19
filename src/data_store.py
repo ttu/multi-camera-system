@@ -44,7 +44,7 @@ def get_routes() -> list[RouteInfo]:
             cur.execute(
                 """
                 SELECT r.id, r.name, c.cameras FROM route r
-                JOIN (SELECT route_id, array_agg(camera_id) as cameras FROM route_cameras GROUP BY route_id) c
+                LEFT JOIN (SELECT route_id, array_agg(camera_id) as cameras FROM route_cameras GROUP BY route_id) c
                 ON r.id = c.route_id
                 """
             )
@@ -64,7 +64,7 @@ def get_camera_info(camera_id: int) -> CameraInfo | None:
             cur.execute(
                 """
                 SELECT ca.id, ca.name, ca.address, cs.status, cs.status_update_time FROM camera ca
-                JOIN (
+                LEFT JOIN (
                     SELECT id, status, time as status_update_time
                     FROM camera_status
                     WHERE id = %(camera_id)s

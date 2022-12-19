@@ -20,7 +20,7 @@ def wait_for_events(
             # payload: {event_type}|{camera_id}|{payload}
             payload = event.payload.split("|")
             if payload[0] in events_to_listen:
-                if not identifier:
+                if identifier is None:
                     yield payload[0], (payload[1], payload[2])
                 if payload[1] == str(identifier):
                     yield payload[0], (payload[1], payload[2])
