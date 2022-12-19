@@ -6,7 +6,7 @@ import cv2
 import data_store
 import event_handler
 import video_stream_consumer
-from common_types import EventType, RouteInfo
+from common_types import CameraInfo, EventType, RouteInfo
 
 
 @dataclass
@@ -25,9 +25,31 @@ class SocketStatusPayload:
 
 SocketPayload = SocketStatusPayload | SocketFramePayload
 
-route_info = RouteInfo(1, [])
-# TODO: Add route to DB
-route_1_cameras = [0, 1]
+
+ROUTE_INFOS: list[RouteInfo] = []
+
+
+def _get_route_for_camera(routes: list[RouteInfo], camera_id: int) -> RouteInfo:
+    routes = [r for r in routes if camera_id in [c.camera_id for c in r.cameras]]
+    if not routes:
+        raise Exception("Not found")
+    return routes[0]
+
+
+def _get_camera(routes: list[RouteInfo], camera_id: int) -> CameraInfo:
+    all_cameras: list[CameraInfo] = sum([r.cameras for r in routes], [])
+    cameras = [camera for camera in all_cameras if camera.camera_id == int(camera_id)]
+    if not cameras:
+        raise Exception("Not found")
+    return cameras[0]
+
+
+def _get_camera_with_address(routes: list[RouteInfo], address: str) -> CameraInfo:
+    all_cameras: list[CameraInfo] = sum([r.cameras for r in routes], [])
+    cameras = [camera for camera in all_cameras if camera.address == address]
+    if not cameras:
+        raise Exception("Not found")
+    return cameras[0]
 
 
 async def listen_for_server_events(queue: Queue[SocketStatusPayload]):
@@ -35,24 +57,24 @@ async def listen_for_server_events(queue: Queue[SocketStatusPayload]):
         [EventType.CAMERA_UPDATE_ADDRESS, EventType.CAMERA_UPDATE_STATUS]
     ):
         if event == EventType.CAMERA_UPDATE_ADDRESS.value:
-            camera = [camera for camera in route_info.cameras if camera.camera_id == int(camera_id)][0]
+            camera = _get_camera(ROUTE_INFOS, int(camera_id))
             camera.address = payload
             print("Camera address", {"camera_id": camera.camera_id, "address": payload})
         elif event == EventType.CAMERA_UPDATE_STATUS.value:
-            await queue.put(SocketStatusPayload(f"{route_info.route_id}:{camera_id}", payload))
+            route = _get_route_for_camera(ROUTE_INFOS, int(camera_id))
+            await queue.put(SocketStatusPayload(f"{route.route_id}:{camera_id}", payload))
             print("Camera status", {"camera_id": camera_id, "status": payload})
 
 
 async def check_initial_camera_info(queue: Queue[SocketStatusPayload]):
-    for camera_id in route_1_cameras:
-        camera = data_store.get_camera_info(camera_id)
-        if not camera:
-            continue
+    routes = data_store.get_routes()
+    ROUTE_INFOS.extend(routes)
 
-        route_info.cameras.append(camera)
-        print("Camera address", {"camera_id": camera.camera_id, "address": camera.address})
-        print("Camera status", {"camera_id": camera.camera_id, "status": camera.status})
-        await queue.put(SocketStatusPayload(f"{route_info.route_id}:{camera.camera_id}", camera.status))
+    for route in ROUTE_INFOS:
+        for camera in route.cameras:
+            print("Camera address", {"camera_id": camera.camera_id, "address": camera.address})
+            print("Camera status", {"camera_id": camera.camera_id, "status": camera.status})
+            await queue.put(SocketStatusPayload(f"{route.route_id}:{camera.camera_id}", camera.status))
 
 
 async def get_video_streams_and_show_in_window(queue: Queue[SocketFramePayload]):
@@ -79,6 +101,5 @@ async def get_video_streams(queue: Queue[SocketFramePayload]):
         if not flag:
             continue
         key = f"{address[0]}:{address[1]}"
-        camera = [c for c in route_info.cameras if c.address == key]
-        if camera:
-            await queue.put(SocketFramePayload(str(camera[0].camera_id), encodedImage.tobytes()))
+        camera = _get_camera_with_address(ROUTE_INFOS, key)
+        await queue.put(SocketFramePayload(str(camera.camera_id), encodedImage.tobytes()))

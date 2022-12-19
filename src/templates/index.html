@@ -101,7 +101,7 @@
                 if (!event?.data) return;
                 if (event.data instanceof Blob) {
                   // TODO: Fix id from frame count
-                  this.cameras["1:" + id].frameCount++;
+                  this.cameras["0:" + id].frameCount++;
                   const image = document.getElementById(`frame_${id}`);
                   image.src = URL.createObjectURL(event.data);
                   image.onload = () => {

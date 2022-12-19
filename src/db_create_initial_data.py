@@ -10,6 +10,14 @@ def create_db():
         with conn.cursor() as cur:
             cur.execute(
                 """
+                CREATE TABLE route (
+                    id INTEGER NOT NULL PRIMARY KEY,
+                    name TEXT
+                );
+                """
+            )
+            cur.execute(
+                """
                 CREATE TABLE camera (
                     id INTEGER NOT NULL PRIMARY KEY,
                     name TEXT,
@@ -31,10 +39,18 @@ def create_db():
             )
             cur.execute(
                 """
+                CREATE TABLE route_cameras (
+                    route_id INTEGER NOT NULL REFERENCES route(id),
+                    camera_id INTEGER NOT NULL REFERENCES camera(id)
+                );
+                """
+            )
+            cur.execute(
+                """
                 CREATE TABLE camera_event (
                     id SERIAL PRIMARY KEY,
                     insert_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    camera_id INT NOT NULL REFERENCES camera(id),
+                    camera_id INTEGER NOT NULL REFERENCES camera(id),
                     event_type varchar(256),
                     payload TEXT
                 );
@@ -66,14 +82,28 @@ def create_db():
 
 
 def seed_db():
-    sql = "INSERT INTO camera (id, name) values(%s, %s)"
-    data = [(0, "Main"), (1, "Upper A"), (2, "Lower B")]
+    route_sql = "INSERT INTO route (id, name) values(%s, %s)"
+    route_data = [(0, "A-Line"), (1, "Enudro Z"), (2, "World Cup")]
+    camera_sql = "INSERT INTO camera (id, name) values(%s, %s)"
+    camera_data = [
+        (0, "A-Line start"),
+        (1, "A-Line tabletop middle"),
+        (2, "A-Line end forest drop"),
+        (3, "Enudro Z South"),
+        (4, "Enudro Z North"),
+        (5, "World Cup road gap"),
+    ]
+    route_camera_sql = "INSERT INTO route_cameras (route_id, camera_id) values(%s, %s)"
+    route_camera_data = [(0, 0), (0, 1), (0, 2), (1, 3), (1, 4), (2, 5)]
+
+    data_inputs = [(route_sql, route_data), (camera_sql, camera_data), (route_camera_sql, route_camera_data)]
 
     with psycopg.connect(common_config.DB_CONNECTION) as conn:
         with conn.cursor() as cur:
-            cur.executemany(sql, data)
-            if cur.rowcount == 0:
-                print("Error")
+            for sql, data in data_inputs:
+                cur.executemany(sql, data)
+                if cur.rowcount == 0:
+                    print("Error")
 
 
 create_db()

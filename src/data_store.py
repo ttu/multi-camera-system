@@ -1,7 +1,7 @@
 import psycopg
 
 import common_config
-from common_types import CameraInfo, CameraStatus
+from common_types import CameraInfo, CameraStatus, RouteInfo
 
 # pylint: disable=not-context-manager
 
@@ -36,6 +36,26 @@ def get_camera_address(camera_id: int) -> str | None:
             cur.execute("SELECT address FROM camera WHERE id = %s", (camera_id,))
             row = cur.fetchone()
             return str(row[0]) if row else None
+
+
+def get_routes() -> list[RouteInfo]:
+    with psycopg.connect(common_config.DB_CONNECTION) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT r.id, r.name, c.cameras FROM route r
+                JOIN (SELECT route_id, array_agg(camera_id) as cameras FROM route_cameras GROUP BY route_id) c
+                ON r.id = c.route_id
+                """
+            )
+            rows = cur.fetchall()
+            # TODO: Fetch cameras with routes query
+            return [
+                RouteInfo(
+                    row[0], row[1], [x for x in [get_camera_info(camera_id) for camera_id in row[2]] if x is not None]
+                )
+                for row in rows
+            ]
 
 
 def get_camera_info(camera_id: int) -> CameraInfo | None:

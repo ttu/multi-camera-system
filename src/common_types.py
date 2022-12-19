@@ -38,6 +38,7 @@ class CameraInfo:
 @dataclass
 class RouteInfo:
     route_id: int
+    name: str
     cameras: list[CameraInfo]
 
 

@@ -70,8 +70,8 @@ def _map_route_info_to_dto(route: RouteInfo):
 
 @app.get("/camera-info/")
 async def camera_info(request: Request):
-    camera_data = _map_route_info_to_dto(server_core.route_info)
-    return JSONResponse(content=camera_data)
+    route_data = [_map_route_info_to_dto(route) for route in server_core.ROUTE_INFOS]
+    return JSONResponse(content=route_data[0])
 
 
 @app.post("/control-camera/")
