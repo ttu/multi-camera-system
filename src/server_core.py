@@ -83,8 +83,9 @@ async def get_video_streams_and_show_in_window(queue: Queue[SocketFramePayload])
         (flag, encodedImage) = cv2.imencode(".jpg", frame)
         if not flag:
             continue
-        await queue.put(SocketFramePayload(f"{address[0]}:{address[1]}", encodedImage.tobytes()))
-        key = str(address)
+        key = f"{address[0]}:{address[1]}"
+        camera = _get_camera_with_address(ROUTE_INFOS, key)
+        await queue.put(SocketFramePayload(str(camera.camera_id), encodedImage.tobytes()))
         if key not in windows:
             windows[key] = True
             cv2.namedWindow(key)
