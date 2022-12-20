@@ -65,13 +65,14 @@ def _map_camera_to_dto(camera: CameraInfo):
 
 
 def _map_route_info_to_dto(route: RouteInfo):
-    return {f"{route.route_id}:{c.camera_id}": _map_camera_to_dto(c) for c in route.cameras}
+    cameras = {f"{route.route_id}:{c.camera_id}": _map_camera_to_dto(c) for c in route.cameras}
+    return {"route_id": route.route_id, "name": route.name, "cameras": cameras}
 
 
 @app.get("/camera-info/")
 async def camera_info(request: Request):
     route_data = [_map_route_info_to_dto(route) for route in server_core.ROUTE_INFOS]
-    return JSONResponse(content=route_data[0])
+    return JSONResponse(content=route_data)
 
 
 @app.post("/control-camera/")
