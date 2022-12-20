@@ -25,6 +25,15 @@
         </div>
       </div>
       <div>
+        <h3>Route actions</h3>
+        <button @click="controlRoute(selectedRoute.route_id, 'start')">
+          Start
+        </button>
+        <button @click="controlRoute(selectedRoute.route_id, 'stop')">
+          Stop
+        </button>
+      </div>
+      <div>
         <h3>Camera actions</h3>
         <div v-for="camera in cameras">
           <label style="padding-right: 10px">{{ camera["cameraId"] }}</label>
@@ -133,6 +142,17 @@
               {
                 method: "post",
                 body: JSON.stringify({ camera_id: cameraId, state }),
+              }
+            );
+            const content = await response.json();
+            console.log(content);
+          },
+          async controlRoute(routeId, state) {
+            const response = await fetch(
+              "http://127.0.0.1:8000/control-route/",
+              {
+                method: "post",
+                body: JSON.stringify({ route_id: routeId, state }),
               }
             );
             const content = await response.json();

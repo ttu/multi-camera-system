@@ -75,6 +75,26 @@ async def camera_info(request: Request):
     return JSONResponse(content=route_data)
 
 
+@app.post("/control-route/")
+async def control_route(request: Request):
+    data = await request.json()
+    route_id = data["route_id"]
+    state = data["state"]
+
+    if state not in ["start", "stop"]:
+        return JSONResponse(content={}, status_code=status.HTTP_400_BAD_REQUEST)
+
+    event = EventType.CAMERA_COMMAND_PREPARE if state == "start" else EventType.CAMERA_COMMAND_TURNOFF
+
+    cameras = next(x.cameras for x in server_core.ROUTE_INFOS if x.route_id == route_id)
+
+    for camera in cameras:
+        _ = event_handler.send_event(event, camera.camera_id)
+        print("Set state", {"camera_id": camera.camera_id, "state": event})
+
+    return JSONResponse(content={"route_id": route_id, "state": event.value})
+
+
 @app.post("/control-camera/")
 async def control_camera(request: Request):
     data = await request.json()
