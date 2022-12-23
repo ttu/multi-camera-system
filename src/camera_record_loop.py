@@ -1,10 +1,11 @@
 import os
 import pathlib
+import time
 from typing import Callable
 
 import cv2
 
-from common_types import CameraStatus, RecordedVideoInfo, VideoCaptureDevice, VideoFrame, VideoWriter
+from common_types import CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
 
 # https://www.geeksforgeeks.org/saving-operated-video-from-a-webcam-using-opencv/
 
@@ -14,7 +15,6 @@ current_path = str(pathlib.Path().resolve())
 source_path = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"
 video_record_path = f"{source_path}{os.sep}temp_video{os.sep}"
 video_record_file_name = "output.avi"
-VIDEO_RECORD_FULL_PATH = f"{video_record_path}{video_record_file_name}"
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
@@ -28,9 +28,12 @@ def shutdown_camera(video_capture: VideoCaptureDevice):
 
 
 def _create_output() -> VideoWriter:
+    file_name = f"record_{round(time.time())}.avi"
+    file_full_path = f"{video_record_path}{file_name}"
+
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
-    out = cv2.VideoWriter(VIDEO_RECORD_FULL_PATH, fourcc, 20.0, (640, 480))
-    return VideoWriter(out)
+    out = cv2.VideoWriter(file_full_path, fourcc, 20.0, (640, 480))
+    return VideoWriter(out, file_full_path)
 
 
 def _write_to_output(frame: VideoFrame, out: VideoWriter):
@@ -85,7 +88,7 @@ def run_camera_loop(
     should_record: Callable[[], bool],
     notify_camera_status: Callable[[CameraStatus], None],
     new_frame: Callable[[VideoFrame], None],
-) -> RecordedVideoInfo:
+) -> ViderRecording:
     state = CameraStatus.CAMERA_READY
     out = _create_output()
 
@@ -97,4 +100,4 @@ def run_camera_loop(
 
     _release_output(out)
 
-    return VIDEO_RECORD_FULL_PATH if out.has_data else ""
+    return ViderRecording(out.has_data, out.file_full_name)

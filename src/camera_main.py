@@ -146,7 +146,10 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
         shutdown_camera(video_capture)
 
         _send_status(camera_id, CameraStatus.SYSTEM_STANDBY)
-        _send_video_to_storage(record_info)
+
+        if record_info.has_data:
+            _send_video_to_storage(record_info.file_full_name)
+        record_info.clean_up()
 
 
 if __name__ == "__main__":

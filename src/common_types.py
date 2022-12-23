@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Tuple
@@ -9,13 +10,12 @@ MemoryBufferImage = Any
 # https://docs.python.org/3/library/socket.html#socket-families
 Address = Tuple[str, int]  # socket _RetAddress
 
-RecordedVideoInfo = str
-
 
 class VideoWriter:
-    def __init__(self, output):
+    def __init__(self, output, file_full_name):
         self.output = output
         self.has_data = False
+        self.file_full_name = file_full_name
 
     def write(self, data):
         self.has_data = True
@@ -23,6 +23,16 @@ class VideoWriter:
 
     def release(self):
         self.output.release()
+
+
+class ViderRecording:
+    def __init__(self, has_data, file_full_name):
+        self.has_data = has_data
+        self.file_full_name = file_full_name
+
+    def clean_up(self):
+        if os.path.exists(self.file_full_name):
+            os.remove(self.file_full_name)
 
 
 @dataclass

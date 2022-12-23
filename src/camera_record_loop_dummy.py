@@ -5,7 +5,7 @@ from typing import Callable
 import cv2
 
 import camera_record_loop
-from common_types import CameraStatus, RecordedVideoInfo, VideoCaptureDevice, VideoFrame, VideoWriter
+from common_types import CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
 
 # pylint: disable=duplicate-code, unused-argument, protected-access
 
@@ -77,7 +77,7 @@ def run_camera_loop(
     should_record: Callable[[], bool],
     notify_camera_status: Callable[[CameraStatus], None],
     new_frame: Callable[[VideoFrame], None],
-) -> RecordedVideoInfo:
+) -> ViderRecording:
     state = CameraStatus.CAMERA_READY
     out = camera_record_loop._create_output()
 
@@ -90,4 +90,4 @@ def run_camera_loop(
 
     camera_record_loop._release_output(out)
 
-    return camera_record_loop.VIDEO_RECORD_FULL_PATH if out.has_data else ""
+    return ViderRecording(out.has_data, out.file_full_name)
