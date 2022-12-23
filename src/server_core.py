@@ -39,6 +39,10 @@ SocketPayload = SocketStatusPayload | SocketFramePayload
 ROUTE_INFOS: list[RouteInfo] = []
 
 
+def _get_all_cameras_from_routes(route_infos: list[RouteInfo]) -> list[CameraInfo]:
+    return sum([r.cameras for r in route_infos], [])
+
+
 def _get_route_for_camera(routes: list[RouteInfo], camera_id: int) -> RouteInfo:
     routes = [r for r in routes if camera_id in [c.camera_id for c in r.cameras]]
     if not routes:
@@ -47,7 +51,7 @@ def _get_route_for_camera(routes: list[RouteInfo], camera_id: int) -> RouteInfo:
 
 
 def _get_camera(routes: list[RouteInfo], camera_id: int) -> CameraInfo:
-    all_cameras: list[CameraInfo] = sum([r.cameras for r in routes], [])
+    all_cameras = _get_all_cameras_from_routes(routes)
     cameras = [camera for camera in all_cameras if camera.camera_id == int(camera_id)]
     if not cameras:
         raise Exception("Not found")
@@ -55,11 +59,17 @@ def _get_camera(routes: list[RouteInfo], camera_id: int) -> CameraInfo:
 
 
 def _get_camera_with_address(routes: list[RouteInfo], address: str) -> CameraInfo:
-    all_cameras: list[CameraInfo] = sum([r.cameras for r in routes], [])
+    all_cameras = _get_all_cameras_from_routes(routes)
     cameras = [camera for camera in all_cameras if camera.address == address]
     if not cameras:
         raise Exception("Not found")
     return cameras[0]
+
+
+def has_camera(routes: list[RouteInfo], camera_id: int) -> bool:
+    all_cameras = _get_all_cameras_from_routes(routes)
+    cameras = [camera for camera in all_cameras if camera.camera_id == int(camera_id)]
+    return False if not cameras else True
 
 
 async def listen_for_server_events(queue: Queue[SocketStatusPayload]):
