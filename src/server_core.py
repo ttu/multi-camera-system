@@ -1,3 +1,5 @@
+import os
+import pathlib
 from asyncio.queues import Queue
 from dataclasses import dataclass
 
@@ -7,6 +9,14 @@ import data_store
 import event_handler
 import video_stream_consumer
 from common_types import CameraInfo, EventType, RouteInfo
+
+current_path = str(pathlib.Path().resolve())
+path_base = "" if current_path.endswith("src") else f"src{os.sep}"
+
+PATH_STATIC = f"{path_base}templates"
+VIDEO_PATH = f"{path_base}sample_videos{os.sep}bike_1_360p.mp4"
+
+CHUNK_SIZE = 1024 * 1024
 
 
 @dataclass
@@ -104,3 +114,13 @@ async def get_video_streams(queue: Queue[SocketFramePayload]):
         key = f"{address[0]}:{address[1]}"
         camera = _get_camera_with_address(ROUTE_INFOS, key)
         await queue.put(SocketFramePayload(str(camera.camera_id), encodedImage.tobytes()))
+
+
+def get_video_file_chunk(file_id: str, chunk_start: str, chunk_end: str | None):
+    start = int(chunk_start)
+    end = int(chunk_end) if chunk_end else start + CHUNK_SIZE
+    filesize = str(os.stat(VIDEO_PATH).st_size)
+    with open(VIDEO_PATH, "rb") as video:
+        video.seek(start)
+        data = video.read(end - start)
+        return data, start, end, filesize

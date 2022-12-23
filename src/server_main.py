@@ -1,13 +1,11 @@
 import asyncio
 import dataclasses
-import os
-import pathlib
 import sys
 from asyncio.queues import Queue
 from threading import Thread
 
 import uvicorn
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
+from fastapi import FastAPI, Header, Request, Response, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -17,11 +15,8 @@ from common_types import CameraInfo, EventType, RouteInfo
 
 app = FastAPI()
 
-current_path = str(pathlib.Path().resolve())
-path_base = "" if current_path.endswith("src") else f"src{os.sep}"
-PATH_STATIC = f"{path_base}templates"
-app.mount("/site", StaticFiles(directory=PATH_STATIC, html=True), name="static")
 
+app.mount("/site", StaticFiles(directory=server_core.PATH_STATIC, html=True), name="static")
 
 status_queue: Queue[server_core.SocketStatusPayload] = Queue()
 stream_queue: Queue[server_core.SocketFramePayload] = Queue()
@@ -110,6 +105,15 @@ async def control_camera(request: Request):
 
     print("Set state", {"camera_id": camera_id, "state": event})
     return JSONResponse(content={"camera_id": camera_id, "state": event.value})
+
+
+@app.get("/video/{video_id}")
+async def video_endpoint(range: str = Header(None)):
+    start, end = range.replace("bytes=", "").split("-")
+    data, file_start, file_end, filesize = server_core.get_video_file_chunk("", start, end)
+
+    headers = {"Content-Range": f"bytes {file_start}-{file_end}/{filesize}", "Accept-Ranges": "bytes"}
+    return Response(data, status_code=206, headers=headers, media_type="video/mp4")
 
 
 # pylint: disable=unused-argument
