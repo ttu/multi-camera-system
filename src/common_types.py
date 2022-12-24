@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Tuple
 
-VideoCaptureDevice = Any  # cv2.VideoCapture
 VideoFrame = Any
 MemoryBufferImage = Any
 
@@ -33,6 +32,18 @@ class ViderRecording:
     def clean_up(self):
         if os.path.exists(self.file_full_name):
             os.remove(self.file_full_name)
+
+
+@dataclass
+class VideoCaptureDevice:
+    camera_id: int
+    device: Any  # cv2.VideoCapture
+
+
+@dataclass
+class CameraConfig:
+    camera_id: int
+    resolution: Tuple[int, int]
 
 
 @dataclass

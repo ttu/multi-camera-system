@@ -20,4 +20,7 @@ if __name__ == "__main__":
         camera_process = Process(target=camera_main.main_loop, args=[camera.camera_id, True], daemon=True)
         camera_process.start()
 
+    # camera_process = Process(target=camera_main.main_loop, args=[0, False], daemon=True)
+    # camera_process.start()
+
     uvicorn.run(server_main.app, host="127.0.0.1", port=8000)

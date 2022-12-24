@@ -5,7 +5,7 @@ from typing import Callable
 import cv2
 
 import camera_record_loop
-from common_types import CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
+from common_types import CameraConfig, CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
 
 # pylint: disable=duplicate-code, unused-argument, protected-access
 
@@ -18,7 +18,7 @@ def prepare_camera(camera_id: int) -> VideoCaptureDevice:
     video_link = VIDEO_1 if int(camera_id) == 0 else VIDEO_2
     cap = cv2.VideoCapture(video_link)
     cap.set(cv2.CAP_PROP_FPS, 1)
-    return cap
+    return VideoCaptureDevice(camera_id, cap)
 
 
 def _check_state(
@@ -49,7 +49,7 @@ def _ready_state(
     if elapsed_ms < refresh_rate:
         time.sleep((refresh_rate - elapsed_ms) / 1000)
 
-    _, frame = video_capture.read()
+    _, frame = video_capture.device.read()
     new_frame(frame)
 
     return time.time() * 1000
@@ -64,7 +64,7 @@ def _recording_state(
     if elapsed_ms < refresh_rate:
         time.sleep((refresh_rate - elapsed_ms) / 1000)
 
-    _, frame = video_capture.read()
+    _, frame = video_capture.device.read()
     new_frame(frame)
     camera_record_loop._write_to_output(frame, output)
 
@@ -79,7 +79,7 @@ def run_camera_loop(
     new_frame: Callable[[VideoFrame], None],
 ) -> ViderRecording:
     state = CameraStatus.CAMERA_READY
-    out = camera_record_loop._create_output()
+    out = camera_record_loop._create_output(CameraConfig(video_capture.camera_id, (640, 360)))
 
     last_time = time.time() * 1000
     while True:

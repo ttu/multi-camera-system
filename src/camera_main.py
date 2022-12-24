@@ -91,7 +91,7 @@ def _new_frame_received(s: socket.socket | None, frame: VideoFrame, request_sock
 def _send_video_to_storage(file_path: str):
     if not file_path:
         return
-    save_as_file_name = f"video_{round(time.time())}.avi"
+    save_as_file_name = f"video_{round(time.time())}.mp4"
     file_upload.upload_file(save_as_file_name, file_path)
 
 

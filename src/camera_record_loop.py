@@ -5,7 +5,7 @@ from typing import Callable
 
 import cv2
 
-from common_types import CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
+from common_types import CameraConfig, CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
 
 # https://www.geeksforgeeks.org/saving-operated-video-from-a-webcam-using-opencv/
 
@@ -14,25 +14,24 @@ from common_types import CameraStatus, VideoCaptureDevice, VideoFrame, VideoWrit
 current_path = str(pathlib.Path().resolve())
 source_path = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"
 video_record_path = f"{source_path}{os.sep}temp_video{os.sep}"
-video_record_file_name = "output.avi"
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
     print("Camera starting", {"camera_id": camera_id})
     cap = cv2.VideoCapture(camera_id)
-    return cap
+    return VideoCaptureDevice(camera_id, cap)
 
 
 def shutdown_camera(video_capture: VideoCaptureDevice):
-    video_capture.release()
+    video_capture.device.release()
 
 
-def _create_output() -> VideoWriter:
-    file_name = f"record_{round(time.time())}.avi"
+def _create_output(camera_config: CameraConfig) -> VideoWriter:
+    file_name = f"record_{camera_config.camera_id}_{round(time.time())}.mp4"
     file_full_path = f"{video_record_path}{file_name}"
 
-    fourcc = cv2.VideoWriter_fourcc(*"XVID")
-    out = cv2.VideoWriter(file_full_path, fourcc, 20.0, (640, 480))
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter(file_full_path, fourcc, 20.0, camera_config.resolution)
     return VideoWriter(out, file_full_path)
 
 
@@ -68,7 +67,7 @@ def _ready_state(
     output: VideoWriter,
     new_frame: Callable[[VideoFrame], None],
 ):
-    _, frame = video_capture.read()
+    _, frame = video_capture.device.read()
     new_frame(frame)
 
 
@@ -77,7 +76,7 @@ def _recording_state(
     output: VideoWriter,
     new_frame: Callable[[VideoFrame], None],
 ):
-    _, frame = video_capture.read()
+    _, frame = video_capture.device.read()
     new_frame(frame)
     _write_to_output(frame, output)
 
@@ -90,7 +89,7 @@ def run_camera_loop(
     new_frame: Callable[[VideoFrame], None],
 ) -> ViderRecording:
     state = CameraStatus.CAMERA_READY
-    out = _create_output()
+    out = _create_output(CameraConfig(video_capture.camera_id, (640, 480)))
 
     while True:
         state, state_func = _check_state(state, should_run, should_record, notify_camera_status)
