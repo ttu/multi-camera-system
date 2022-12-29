@@ -6,7 +6,7 @@ from typing import Callable
 
 import data_store
 import event_handler
-import file_upload
+import file_storage
 import video_stream_producer
 from common_types import CameraStatus, EventType, VideoFrame
 
@@ -92,7 +92,7 @@ def _send_video_to_storage(file_path: str):
     if not file_path:
         return
     save_as_file_name = f"video_{round(time.time())}.mp4"
-    file_upload.upload_file(save_as_file_name, file_path)
+    file_storage.upload_file(save_as_file_name, file_path)
 
 
 def _get_camera_functions(use_dummy_mode: bool):

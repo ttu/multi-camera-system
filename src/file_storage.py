@@ -29,3 +29,12 @@ def upload_file(upload_file_name, file_path):
         print("File uploaded", {upload_file_name, file_path})
     except S3Error as e:
         print("Error occurred.", e)
+
+
+def get_files() -> list[str] | None:
+    try:
+        file_list = client.list_objects(BUCKET_NAME)
+        return [item.object_name for item in file_list]
+    except S3Error as e:
+        print("Error occurred.", e)
+        return None
