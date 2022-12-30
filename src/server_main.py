@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 import event_handler
+import file_storage
 import server_core
 from common_types import CameraInfo, EventType, RouteInfo
 
@@ -107,6 +108,12 @@ async def control_camera(request: Request):
 
     print("Set state", {"camera_id": camera_id, "state": event})
     return JSONResponse(content={"camera_id": camera_id, "state": event.value})
+
+
+@app.get("/video-files/")
+async def get_video_files(request: Request):
+    files = file_storage.get_file_names()
+    return JSONResponse(content={"files": files})
 
 
 @app.get("/video/{video_id}")

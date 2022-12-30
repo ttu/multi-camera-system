@@ -61,9 +61,18 @@
       </div>
       <div>
         <h3>Recorded videos</h3>
-        <video width="360" controls>
-          <source src="/video/test" type="video/mp4" />
-        </video>
+        <div>
+          <select :required @change="selectFile">
+            <option v-for="file in files" v-bind:value="file.name">
+              {{ file.title }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <video width="360" controls>
+            <source src="/video/test" type="video/mp4" />
+          </video>
+        </div>
       </div>
     </div>
     <script type="module">
@@ -73,10 +82,12 @@
         data() {
           return {
             routes: {},
+            files: [],
           };
         },
         async mounted() {
           await this.fetchCameraData();
+          await this.fetchFileNames();
           this.initUpdates();
         },
         computed: {
@@ -95,6 +106,9 @@
           },
         },
         methods: {
+          selectFile(selection) {
+            console.log(selection.target.value);
+          },
           getCameraRoute(cameraId) {
             const foundRoute = this.routes.filter((r) =>
               Object.values(r.cameras)
@@ -107,6 +121,14 @@
             const response = await fetch("http://127.0.0.1:8000/camera-info/");
             const content = await response.json();
             this.routes = content;
+          },
+          async fetchFileNames() {
+            const response = await fetch("http://127.0.0.1:8000/video-files/");
+            const content = await response.json();
+            this.files = content["files"].map((f) => ({
+              title: f,
+              name: f,
+            }));
           },
           initUpdates() {
             const status_ws = new WebSocket(
