@@ -36,7 +36,6 @@ NOTE: `psycopg` is installed in binary mode.
 
 ```sh
 docker volume create minio
-
 docker run \
    -p 9000:9000 \
    -p 9090:9090 \

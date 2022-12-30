@@ -31,7 +31,20 @@ def upload_file(upload_file_name, file_path):
         print("Error occurred.", e)
 
 
-def get_files() -> list[str] | None:
+def get_file_data(file_name: str):
+    try:
+        video = client.get_object(
+            BUCKET_NAME,
+            file_name,
+        )
+        print("File download", {file_name})
+        return video
+    except S3Error as e:
+        print("Error occurred.", e)
+        return None
+
+
+def get_file_names() -> list[str] | None:
     try:
         file_list = client.list_objects(BUCKET_NAME)
         return [item.object_name for item in file_list]
