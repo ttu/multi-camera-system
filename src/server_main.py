@@ -6,6 +6,7 @@ from threading import Thread
 
 import uvicorn
 from fastapi import FastAPI, Header, Request, Response, WebSocket, WebSocketDisconnect, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -16,8 +17,15 @@ from common_types import CameraInfo, EventType, RouteInfo
 
 app = FastAPI()
 
-
 app.mount("/site", StaticFiles(directory=server_core.PATH_STATIC, html=True), name="static")
+
+origins = ["http://localhost:8000", "localhost:8000"]
+
+
+app.add_middleware(
+    CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
+)
+
 
 status_queue: Queue[server_core.SocketStatusPayload] = Queue()
 stream_queue: Queue[server_core.SocketFramePayload] = Queue()

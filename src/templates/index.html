@@ -62,7 +62,7 @@
       <div>
         <h3>Recorded videos</h3>
         <div>
-          <select :required @change="selectFile">
+          <select :required="true" @change="selectFile">
             <option v-for="file in files" v-bind:value="file.name">
               {{ file.title }}
             </option>
@@ -118,12 +118,12 @@
             return foundRoute[0];
           },
           async fetchCameraData() {
-            const response = await fetch("http://127.0.0.1:8000/camera-info/");
+            const response = await fetch("/camera-info/");
             const content = await response.json();
             this.routes = content;
           },
           async fetchFileNames() {
-            const response = await fetch("http://127.0.0.1:8000/video-files/");
+            const response = await fetch("/video-files/");
             const content = await response.json();
             this.files = content["files"].map((f) => ({
               title: f,
@@ -165,24 +165,18 @@
             });
           },
           async controlCamera(cameraId, state) {
-            const response = await fetch(
-              "http://127.0.0.1:8000/control-camera/",
-              {
-                method: "post",
-                body: JSON.stringify({ camera_id: cameraId, state }),
-              }
-            );
+            const response = await fetch("/control-camera/", {
+              method: "post",
+              body: JSON.stringify({ camera_id: cameraId, state }),
+            });
             const content = await response.json();
             console.log(content);
           },
           async controlRoute(routeId, state) {
-            const response = await fetch(
-              "http://127.0.0.1:8000/control-route/",
-              {
-                method: "post",
-                body: JSON.stringify({ route_id: routeId, state }),
-              }
-            );
+            const response = await fetch("/control-route/", {
+              method: "post",
+              body: JSON.stringify({ route_id: routeId, state }),
+            });
             const content = await response.json();
             console.log(content);
           },
