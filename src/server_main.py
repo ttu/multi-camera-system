@@ -120,14 +120,16 @@ async def control_camera(request: Request):
 
 @app.get("/video-files/")
 async def get_video_files(request: Request):
-    files = file_storage.get_file_names()
-    return JSONResponse(content={"files": files})
+    files = file_storage.get_files()
+    if not files:
+        return Response(None, 500)
+    return JSONResponse(content={"files": [f.name for f in files]})
 
 
 @app.get("/video/{video_id}")
-async def video_endpoint(range: str = Header(None)):
+async def download_video(video_id: str, range: str = Header(None)):
     start, end = range.replace("bytes=", "").split("-")
-    data, file_start, file_end, filesize = server_core.get_video_file_chunk("", start, end)
+    data, file_start, file_end, filesize = server_core.get_video_file_chunk(video_id, start, end)
 
     headers = {"Content-Range": f"bytes {file_start}-{file_end}/{filesize}", "Accept-Ranges": "bytes"}
     return Response(data, status_code=206, headers=headers, media_type="video/mp4")

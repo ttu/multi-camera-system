@@ -63,6 +63,12 @@ class RouteInfo:
     cameras: list[CameraInfo]
 
 
+@dataclass
+class FileInfo:
+    name: str
+    size: int
+
+
 class CameraStatus(Enum):
     SYSTEM_STANDBY = "SYSTEM_STANDBY"
     SYSTEM_OFF = "SYSTEM_OFF"

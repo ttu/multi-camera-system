@@ -7,6 +7,7 @@ import cv2
 
 import data_store
 import event_handler
+import file_storage
 import video_stream_consumer
 from common_types import CameraInfo, EventType, RouteInfo
 
@@ -129,8 +130,10 @@ async def get_video_streams(queue: Queue[SocketFramePayload]):
 def get_video_file_chunk(file_id: str, chunk_start: str, chunk_end: str | None):
     start = int(chunk_start)
     end = int(chunk_end) if chunk_end else start + CHUNK_SIZE
-    filesize = str(os.stat(VIDEO_PATH).st_size)
-    with open(VIDEO_PATH, "rb") as video:
-        video.seek(start)
-        data = video.read(end - start)
-        return data, start, end, filesize
+    # TODO: Store file infos to memory
+    files = file_storage.get_files(file_id)
+    if not files:
+        raise ValueError("File not found from storage")
+    file = files[0]
+    file_data = file_storage.get_file_data(file_id, start, end)
+    return file_data.data, start, end, file.size
