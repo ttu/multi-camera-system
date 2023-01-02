@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Tuple
+from typing import Any, Callable, Tuple
 
 VideoFrame = Any
 MemoryBufferImage = Any
@@ -34,10 +34,11 @@ class ViderRecording:
             os.remove(self.file_full_name)
 
 
-@dataclass
 class VideoCaptureDevice:
-    camera_id: int
-    device: Any  # cv2.VideoCapture
+    def __init__(self, camera_id: int, get_frame: Callable[[], Tuple[Any, VideoFrame]], release: Callable[[], None]):
+        self.camera_id = camera_id
+        self.get_frame = get_frame
+        self.release = release
 
 
 @dataclass

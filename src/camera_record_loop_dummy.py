@@ -18,7 +18,7 @@ def prepare_camera(camera_id: int) -> VideoCaptureDevice:
     video_link = VIDEO_1 if int(camera_id) == 0 else VIDEO_2
     cap = cv2.VideoCapture(video_link)
     cap.set(cv2.CAP_PROP_FPS, 1)
-    return VideoCaptureDevice(camera_id, cap)
+    return VideoCaptureDevice(camera_id, lambda: cap.read(), lambda: cap.release())
 
 
 def _check_state(
@@ -49,7 +49,7 @@ def _ready_state(
     if elapsed_ms < refresh_rate:
         time.sleep((refresh_rate - elapsed_ms) / 1000)
 
-    _, frame = video_capture.device.read()
+    _, frame = video_capture.get_frame()
     new_frame(frame)
 
     return time.time() * 1000
@@ -64,7 +64,7 @@ def _recording_state(
     if elapsed_ms < refresh_rate:
         time.sleep((refresh_rate - elapsed_ms) / 1000)
 
-    _, frame = video_capture.device.read()
+    _, frame = video_capture.get_frame()
     new_frame(frame)
     camera_record_loop._write_to_output(frame, output)
 

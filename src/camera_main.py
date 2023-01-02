@@ -4,6 +4,7 @@ import time
 from threading import Thread
 from typing import Callable
 
+import camera_record_loop
 import data_store
 import event_handler
 import file_storage
@@ -95,20 +96,9 @@ def _send_video_to_storage(file_path: str):
     file_storage.upload_file(save_as_file_name, file_path)
 
 
-def _get_camera_functions(use_dummy_mode: bool):
-    import camera_record_loop
-
-    if use_dummy_mode:
-        from camera_record_loop_dummy import prepare_camera, run_camera_loop
-
-        return prepare_camera, run_camera_loop, camera_record_loop.shutdown_camera
-    else:
-        return camera_record_loop.prepare_camera, camera_record_loop.run_camera_loop, camera_record_loop.shutdown_camera
-
-
 def main_loop(camera_id: int, use_dummy_mode: bool):
     print("Starting:", {"camera_id": camera_id, "use_dummy_mode": use_dummy_mode})
-    prepare_camera, run_camera_loop, shutdown_camera = _get_camera_functions(use_dummy_mode)
+    prepare_camera, run_camera_loop, shutdown_camera = camera_record_loop.get_camera_functions(use_dummy_mode)
 
     event_thread = Thread(target=_listen_camera_events, args=[camera_id], daemon=True)
     event_thread.start()

@@ -19,11 +19,11 @@ video_record_path = f"{source_path}{os.sep}temp_video{os.sep}"
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
     print("Camera starting", {"camera_id": camera_id})
     cap = cv2.VideoCapture(camera_id)
-    return VideoCaptureDevice(camera_id, cap)
+    return VideoCaptureDevice(camera_id, lambda: cap.read(), lambda: cap.release())
 
 
 def shutdown_camera(video_capture: VideoCaptureDevice):
-    video_capture.device.release()
+    video_capture.release()
 
 
 def _create_output(camera_config: CameraConfig) -> VideoWriter:
@@ -67,7 +67,7 @@ def _ready_state(
     output: VideoWriter,
     new_frame: Callable[[VideoFrame], None],
 ):
-    _, frame = video_capture.device.read()
+    _, frame = video_capture.get_frame()
     new_frame(frame)
 
 
@@ -76,7 +76,7 @@ def _recording_state(
     output: VideoWriter,
     new_frame: Callable[[VideoFrame], None],
 ):
-    _, frame = video_capture.device.read()
+    _, frame = video_capture.get_frame()
     new_frame(frame)
     _write_to_output(frame, output)
 
@@ -100,3 +100,12 @@ def run_camera_loop(
     _release_output(out)
 
     return ViderRecording(out.has_data, out.file_full_name)
+
+
+def get_camera_functions(use_dummy_mode: bool):
+    if use_dummy_mode:
+        import camera_record_loop_dummy
+
+        return camera_record_loop_dummy.prepare_camera, camera_record_loop_dummy.run_camera_loop, shutdown_camera
+    else:
+        return prepare_camera, run_camera_loop, shutdown_camera
