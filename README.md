@@ -2,6 +2,27 @@
 
 System for controlling multiple cameras
 
+### Tech stack
+
+- Fast API
+- Python socket
+- PostgreSQL
+- Bleak BLE
+- Vue3
+- WebSocket
+
+#### System
+
+![System](docs/system.excalidraw.png)
+
+#### PoC communication
+
+![System](docs/poc_communication.excalidraw.png)
+
+#### Detection with BLE sensors & recording
+
+![Detection](docs/detection.excalidraw.png)
+
 ### Install
 
 ```sh
@@ -62,31 +83,10 @@ python src/server_main.py
 python src/camera_main.py
 ```
 
+Open server site: `http://127.0.0.1:8000/site`
+
 Start the camera in dummy mode
 
 ```sh
 python src/camera_main.py --dummy-mode True
 ```
-
-### Process
-
-#### System
-
-![System](docs/system.excalidraw.png)
-
-#### PoC communication
-
-![System](docs/poc_communication.excalidraw.png)
-
-#### Detection with BLE sensors & recording
-
-![Detection](docs/detection.excalidraw.png)
-
-### Tech stack
-
-- Fast API
-- Python socket
-- PostgreSQL or SQLite
-- Bleak BLE
-- Vue3
-- WebSocket
