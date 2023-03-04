@@ -62,15 +62,15 @@
       <div>
         <h3>Recorded videos</h3>
         <div>
-          <select :required="true" @change="selectFile">
+          <select :required="true" v-model="videoFile">
             <option v-for="file in files" v-bind:value="file.name">
               {{ file.title }}
             </option>
           </select>
         </div>
         <div>
-          <video width="360" controls>
-            <source src="/video/bike_2_360p.mp4" type="video/mp4" />
+          <video width="360" :key="selectedVideoUrl" controls>
+            <source :src="selectedVideoUrl" type="video/mp4" />
           </video>
         </div>
       </div>
@@ -83,6 +83,7 @@
           return {
             routes: {},
             files: [],
+            videoFile: "",
           };
         },
         async mounted() {
@@ -93,6 +94,9 @@
         computed: {
           selectedRoute() {
             return this.routes[0];
+          },
+          selectedVideoUrl() {
+            return `/video/${this.videoFile}`;
           },
           cameras() {
             const c = this.selectedRoute?.cameras;
@@ -106,9 +110,6 @@
           },
         },
         methods: {
-          selectFile(selection) {
-            console.log(selection.target.value);
-          },
           getCameraRoute(cameraId) {
             const foundRoute = this.routes.filter((r) =>
               Object.values(r.cameras)
