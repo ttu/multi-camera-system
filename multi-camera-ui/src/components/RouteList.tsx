@@ -1,19 +1,22 @@
-import { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
 import * as api from "../api";
 import { RouteInfo } from "../types";
 
 const RouteList = () => {
-  const [routeInfo, setRoutes] = useState<RouteInfo[]>();
+  const queryClient = useQueryClient();
+  const { data } = api.getRouteInfos();
 
-  useEffect(() => {
-    api.getRouteInfos().then((infos) => setRoutes(infos));
-  }, []);
+  // const [routeInfo, setRoutes] = useState<RouteInfo[]>();
+
+  // useEffect(() => {
+  //   api.getRouteInfos().then((infos) => setRoutes(infos));
+  // }, []);
 
   return (
     <>
       <h1>Routes</h1>
       <div>
-        {routeInfo?.map((route) => (
+        {data?.map((route) => (
           <Route key={route.route_id} route={route} />
         ))}
       </div>

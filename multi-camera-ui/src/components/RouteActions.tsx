@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
 import * as api from "../api";
-import { RouteInfo } from "../types";
 
 const RouteActions = () => {
-  const [routeInfo, setRoutes] = useState<RouteInfo[]>();
+  const queryClient = useQueryClient()
+  const { data } = api.getRouteInfos();
 
-  useEffect(() => {
-    api.getRouteInfos().then((infos) => setRoutes(infos));
-  }, []);
+  // const [routeInfo, setRoutes] = useState<RouteInfo[]>();
+
+  // useEffect(() => {
+  //   api.getRouteInfos().then((infos) => setRoutes(infos));
+  // }, []);
 
   return (
     <>

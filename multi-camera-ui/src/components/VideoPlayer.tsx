@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
 import * as api from "../api";
-import { RouteInfo } from "../types";
 
 const VideoPlayer = () => {
-  const [routeInfo, setRoutes] = useState<RouteInfo[]>();
+  const queryClient = useQueryClient();
+  const { data } = api.getRouteInfos();
 
-  useEffect(() => {
-    api.getRouteInfos().then((infos) => setRoutes(infos));
-  }, []);
+  // const [routeInfo, setRoutes] = useState<RouteInfo[]>();
+
+  // useEffect(() => {
+  //   api.getRouteInfos().then((infos) => setRoutes(infos));
+  // }, []);
 
   return (
     <>
       <h1>Video Player</h1>
-      <div>
-        TODO
-      </div>
+      <div>TODO</div>
     </>
   );
 };
