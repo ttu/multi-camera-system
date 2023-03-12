@@ -9,3 +9,22 @@ export interface CameraInfo {
   name: string;
   status: string;
 }
+
+export interface VideoFiles {
+  files: string[];
+}
+
+export type VideoFile = {
+  title: string;
+  name: string;
+}
+
+export interface CameraControlState {
+  camera_id: number;
+  state: string;
+}
+
+export interface RouteControlState {
+  route_id: number;
+  state: string;
+}

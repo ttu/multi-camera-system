@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import * as api from "./api";
-import { RouteInfo } from "./types";
+import * as api from "../api";
+import { RouteInfo } from "../types";
 
 const CameraStatusList = () => {
   const [routeInfo, setRoutes] = useState<RouteInfo[]>();
@@ -12,9 +12,9 @@ const CameraStatusList = () => {
   return (
     <div>
       <h1>Camera Status List</h1>
-        {routeInfo?.map((route) => (
-          <Route key={route.route_id} route={route} />
-        ))}
+      {routeInfo?.map((route) => (
+        <Route key={route.route_id} route={route} />
+      ))}
     </div>
   );
 };
@@ -22,9 +22,11 @@ const CameraStatusList = () => {
 const Route = (props: { route: RouteInfo }) => {
   return (
     <div>
-      <h2>{props.route.name}</h2>
-      {Object.values(props.route.cameras).map(camera => (<div>{`${camera.name} : ${camera.status}`}</div>))}
-      </div>
+      <h4>{props.route.name}</h4>
+      {Object.values(props.route.cameras).map((camera) => (
+        <div>{`${camera.name} : ${camera.status}`}</div>
+      ))}
+    </div>
   );
 };
 
