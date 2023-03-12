@@ -83,14 +83,14 @@ def create_db():
 
 def seed_db():
     route_sql = "INSERT INTO route (id, name) values(%s, %s)"
-    route_data = [(0, "A-Line"), (1, "Enudro Z"), (2, "World Cup")]
+    route_data = [(0, "A-Line"), (1, "Enduro Z"), (2, "World Cup")]
     camera_sql = "INSERT INTO camera (id, name) values(%s, %s)"
     camera_data = [
         (0, "A-Line start"),
         (1, "A-Line tabletop middle"),
         (2, "A-Line end forest drop"),
-        (3, "Enudro Z South"),
-        (4, "Enudro Z North"),
+        (3, "Enduro Z South"),
+        (4, "Enduro Z North"),
         (5, "World Cup road gap"),
     ]
     route_camera_sql = "INSERT INTO route_cameras (route_id, camera_id) values(%s, %s)"
