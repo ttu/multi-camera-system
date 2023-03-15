@@ -1,8 +1,11 @@
 import { useQueryClient } from "react-query";
 import * as api from "../api";
 import { RouteInfo } from "../types";
+import useCameraStatusUpdater from "../useCameraStatusUpdater";
 
 const RouteList = () => {
+  const status = useCameraStatusUpdater();
+
   const queryClient = useQueryClient();
   const { data } = api.getRouteInfos();
 

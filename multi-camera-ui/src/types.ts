@@ -4,6 +4,12 @@ export interface RouteInfo {
   cameras: CameraInfo[];
 }
 
+export interface CameraStatausUpdate {
+  sender: string;
+  status: string;
+  type: string;
+}
+
 export interface CameraInfo {
   cameraId: string;
   name: string;
