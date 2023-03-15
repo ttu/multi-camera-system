@@ -2,6 +2,7 @@ import os
 import pathlib
 from asyncio.queues import Queue
 from dataclasses import dataclass
+from datetime import datetime
 
 import cv2
 
@@ -80,11 +81,15 @@ async def listen_for_server_events(queue: Queue[SocketStatusPayload]):
         if event == EventType.CAMERA_UPDATE_ADDRESS.value:
             camera = _get_camera(ROUTE_INFOS, int(camera_id))
             camera.address = payload
+            camera.address_update_time = str(datetime.now())
             print("Camera address", {"camera_id": camera.camera_id, "address": payload})
         elif event == EventType.CAMERA_UPDATE_STATUS.value:
             route = _get_route_for_camera(ROUTE_INFOS, int(camera_id))
-            await queue.put(SocketStatusPayload(f"{route.route_id}:{camera_id}", payload))
-            print("Camera status", {"camera_id": camera_id, "status": payload})
+            camera = _get_camera([route], int(camera_id))
+            camera.status = payload
+            camera.status_update_time = str(datetime.now())
+            await queue.put(SocketStatusPayload(f"{route.route_id}:{camera.camera_id}", payload))
+            print("Camera status", {"camera_id": camera.camera_id, "status": payload})
 
 
 async def check_initial_camera_info(queue: Queue[SocketStatusPayload]):

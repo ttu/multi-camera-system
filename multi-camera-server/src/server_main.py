@@ -1,7 +1,7 @@
 import asyncio
-from dataclasses import asdict, dataclass
 import sys
 from asyncio.queues import Queue
+from dataclasses import asdict, dataclass
 from threading import Thread
 
 import uvicorn
@@ -163,6 +163,7 @@ async def get_video_files(request: Request):
     if not files:
         return Response(None, 500)
     return VideoFilesDto([f.name for f in files])
+
 
 @app.get("/video/{video_id}")
 async def download_video(video_id: str, range: str = Header(None)):
