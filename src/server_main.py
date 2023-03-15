@@ -1,5 +1,5 @@
 import asyncio
-import dataclasses
+from dataclasses import asdict, dataclass
 import sys
 from asyncio.queues import Queue
 from threading import Thread
@@ -27,6 +27,33 @@ app.add_middleware(
 )
 
 
+@dataclass
+class CameraDto:
+    cameraId: str
+    name: str
+    status: str
+    frameCount: int
+
+
+@dataclass
+class RouteDto:
+    route_id: int
+    name: str
+    cameras: dict[str, CameraDto]
+
+
+@dataclass
+class RouteControlDto:
+    route_id: str
+    state: str
+
+
+@dataclass
+class CameraControlDto:
+    camera_id: str
+    state: str
+
+
 status_queue: Queue[server_core.SocketStatusPayload] = Queue()
 stream_queue: Queue[server_core.SocketFramePayload] = Queue()
 
@@ -39,7 +66,7 @@ async def _send_queue_messages_json(queue: Queue[server_core.SocketStatusPayload
         next = await queue.get()
         for socket in sockets:
             try:
-                await socket.send_json(dataclasses.asdict(next))
+                await socket.send_json(asdict(next))
             except Exception as ex:
                 sockets.remove(socket)
                 print(ex)
@@ -60,26 +87,21 @@ async def _send_queue_messages_bytes(queue: Queue[server_core.SocketFramePayload
 
 
 def _map_camera_to_dto(camera: CameraInfo):
-    return {
-        "cameraId": camera.camera_id,
-        "name": camera.name,
-        "status": camera.status,
-        "frameCount": 0,
-    }
+    return CameraDto(camera.camera_id, camera.name, camera.status, 0)
 
 
 def _map_route_info_to_dto(route: RouteInfo):
     cameras = {f"{route.route_id}:{c.camera_id}": _map_camera_to_dto(c) for c in route.cameras}
-    return {"route_id": route.route_id, "name": route.name, "cameras": cameras}
+    return RouteDto(route.route_id, route.name, cameras)
 
 
-@app.get("/camera-info/")
+@app.get("/route-info/", response_model=list[RouteDto])
 async def camera_info(request: Request):
     route_data = [_map_route_info_to_dto(route) for route in server_core.ROUTE_INFOS]
     return JSONResponse(content=route_data)
 
 
-@app.post("/control-route/")
+@app.post("/control-route/", response_model=RouteControlDto)
 async def control_route(request: Request):
     data = await request.json()
     route_id = data["route_id"]
@@ -96,10 +118,10 @@ async def control_route(request: Request):
         _ = event_handler.send_event(event, camera.camera_id)
         print("Set state", {"camera_id": camera.camera_id, "state": event})
 
-    return JSONResponse(content={"route_id": route_id, "state": event.value})
+    return JSONResponse(content=RouteControlDto(route_id, event.value))
 
 
-@app.post("/control-camera/")
+@app.post("/control-camera/", response_model=CameraControlDto)
 async def control_camera(request: Request):
     data = await request.json()
     camera_id = data["camera_id"]
@@ -115,7 +137,7 @@ async def control_camera(request: Request):
     _ = event_handler.send_event(event, camera_id)
 
     print("Set state", {"camera_id": camera_id, "state": event})
-    return JSONResponse(content={"camera_id": camera_id, "state": event.value})
+    return JSONResponse(content=CameraControlDto(camera_id, event.value))
 
 
 @app.get("/video-files/")

@@ -87,7 +87,7 @@
           };
         },
         async mounted() {
-          await this.fetchCameraData();
+          await this.fetchRouteData();
           await this.fetchFileNames();
           this.initUpdates();
         },
@@ -118,8 +118,8 @@
             );
             return foundRoute[0];
           },
-          async fetchCameraData() {
-            const response = await fetch("/camera-info/");
+          async fetchRouteData() {
+            const response = await fetch("/route-info/");
             const content = await response.json();
             this.routes = content;
           },
