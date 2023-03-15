@@ -54,6 +54,23 @@ class CameraControlDto:
     state: str
 
 
+@dataclass
+class VideoFilesDto:
+    files: list[str]
+
+
+@dataclass
+class RouteControlRequest:
+    route_id: int
+    state: str
+
+
+@dataclass
+class CameraControlRequest:
+    camera_id: int
+    state: str
+
+
 status_queue: Queue[server_core.SocketStatusPayload] = Queue()
 stream_queue: Queue[server_core.SocketFramePayload] = Queue()
 
@@ -98,7 +115,7 @@ def _map_route_info_to_dto(route: RouteInfo):
 @app.get("/route-info/", response_model=list[RouteDto])
 async def camera_info(request: Request):
     route_data = [_map_route_info_to_dto(route) for route in server_core.ROUTE_INFOS]
-    return JSONResponse(content=route_data)
+    return route_data
 
 
 @app.post("/control-route/", response_model=RouteControlDto)
@@ -118,7 +135,7 @@ async def control_route(request: Request):
         _ = event_handler.send_event(event, camera.camera_id)
         print("Set state", {"camera_id": camera.camera_id, "state": event})
 
-    return JSONResponse(content=RouteControlDto(route_id, event.value))
+    return RouteControlDto(route_id, event.value)
 
 
 @app.post("/control-camera/", response_model=CameraControlDto)
@@ -137,16 +154,15 @@ async def control_camera(request: Request):
     _ = event_handler.send_event(event, camera_id)
 
     print("Set state", {"camera_id": camera_id, "state": event})
-    return JSONResponse(content=CameraControlDto(camera_id, event.value))
+    return CameraControlDto(camera_id, event.value)
 
 
-@app.get("/video-files/")
+@app.get("/video-files/", response_model=VideoFilesDto)
 async def get_video_files(request: Request):
     files = file_storage.get_files()
     if not files:
         return Response(None, 500)
-    return JSONResponse(content={"files": [f.name for f in files]})
-
+    return VideoFilesDto([f.name for f in files])
 
 @app.get("/video/{video_id}")
 async def download_video(video_id: str, range: str = Header(None)):
