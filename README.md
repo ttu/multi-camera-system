@@ -4,6 +4,7 @@ System for controlling multiple cameras
 
 ### Tech stack
 
+- React
 - Fast API
 - Python socket
 - PostgreSQL
@@ -25,10 +26,18 @@ System for controlling multiple cameras
 
 ### Install
 
+Server
 ```sh
+cd multi-camera-server
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install .[dev]
+```
+
+Front-end
+```sh
+cd multi-camera-ui
+npm install
 ```
 
 #### Postgres
