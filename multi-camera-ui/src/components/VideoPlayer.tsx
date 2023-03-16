@@ -1,20 +1,22 @@
-import { useQueryClient } from "react-query";
+import { useEffect, useState } from "react";
 import * as api from "../api";
+import { VideoFile } from "../types";
 
 const VideoPlayer = () => {
-  const queryClient = useQueryClient();
-  const { data } = api.getRouteInfos();
+  const [files, setfiles] = useState<VideoFile[]>();
 
-  // const [routeInfo, setRoutes] = useState<RouteInfo[]>();
-
-  // useEffect(() => {
-  //   api.getRouteInfos().then((infos) => setRoutes(infos));
-  // }, []);
+  useEffect(() => {
+    api.getVideoFiles().then((resp) => setfiles(resp));
+  }, []);
 
   return (
     <>
       <h1>Video Player</h1>
-      <div>TODO</div>
+      <select>
+        {files?.map((file) => (
+          <option>{file.name}</option>
+        ))}
+      </select>
     </>
   );
 };

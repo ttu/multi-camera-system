@@ -1,25 +1,13 @@
-import { useQueryClient } from "react-query";
-import * as api from "../api";
-import { RouteInfo } from "../types";
-import useCameraStatusUpdater from "../useCameraStatusUpdater";
+import { RouteInfo, RouteProps, RoutesProps } from "../types";
 
-const RouteList = () => {
-  const status = useCameraStatusUpdater();
-
-  const queryClient = useQueryClient();
-  const { data } = api.getRouteInfos();
-
-  // const [routeInfo, setRoutes] = useState<RouteInfo[]>();
-
-  // useEffect(() => {
-  //   api.getRouteInfos().then((infos) => setRoutes(infos));
-  // }, []);
+const RouteList = (props: RoutesProps) => {
+  const { routes } = props;
 
   return (
     <>
       <h1>Routes</h1>
       <div>
-        {data?.map((route) => (
+        {routes?.map((route) => (
           <Route key={route.route_id} route={route} />
         ))}
       </div>
@@ -27,7 +15,7 @@ const RouteList = () => {
   );
 };
 
-const Route = (props: { route: RouteInfo }) => {
+const Route = (props: RouteProps) => {
   return <h2>{`${props.route.route_id}: ${props.route.name}`}</h2>;
 };
 

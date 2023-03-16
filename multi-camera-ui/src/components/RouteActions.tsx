@@ -1,22 +1,10 @@
-import { useQueryClient } from "react-query";
-import * as api from "../api";
+import { RoutesProps } from "../types";
 
-const RouteActions = () => {
-  const queryClient = useQueryClient()
-  const { data } = api.getRouteInfos();
-
-  // const [routeInfo, setRoutes] = useState<RouteInfo[]>();
-
-  // useEffect(() => {
-  //   api.getRouteInfos().then((infos) => setRoutes(infos));
-  // }, []);
-
+const RouteActions = (props: RoutesProps) => {
   return (
     <>
       <h1>Route Actions</h1>
-      <div>
-        TODO
-      </div>
+      <div>TODO</div>
     </>
   );
 };

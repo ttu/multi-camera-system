@@ -1,3 +1,11 @@
+export interface RoutesProps {
+  routes: RouteInfo[];
+}
+
+export interface RouteProps {
+  route: RouteInfo;
+}
+
 export interface RouteInfo {
   route_id: string;
   name: string;
@@ -23,7 +31,7 @@ export interface VideoFiles {
 export type VideoFile = {
   title: string;
   name: string;
-}
+};
 
 export interface CameraControlState {
   camera_id: number;

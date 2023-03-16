@@ -3,13 +3,15 @@ import { CameraControlState, RouteControlState, RouteInfo, VideoFile, VideoFiles
 
 const fetchRouteInfos = async () => {
   const response = await fetch("/api/route-info/");
+  console.log("fetch", "/api/route-info/");
   return (await response.json()) as RouteInfo[];
 };
 
 export const getRouteInfos = () => useQuery("routes", fetchRouteInfos);
 
 export const getVideoFiles = async (): Promise<VideoFile[]> => {
-  const response = await fetch("/video-files/");
+  const response = await fetch("/api/video-files/");
+  console.log("fetch", "/video-files/");
   const content = (await response.json()) as VideoFiles;
   const files = content.files.map((f) => ({
     title: f,
@@ -19,7 +21,7 @@ export const getVideoFiles = async (): Promise<VideoFile[]> => {
 };
 
 export const controlCamera = async (cameraId: number, state: string): Promise<CameraControlState> => {
-  const response = await fetch("/control-camera/", {
+  const response = await fetch("/api/control-camera/", {
     method: "post",
     body: JSON.stringify({ camera_id: cameraId, state }),
   });
@@ -28,7 +30,7 @@ export const controlCamera = async (cameraId: number, state: string): Promise<Ca
 };
 
 export const controlRoute = async (routeId: number, state: string): Promise<RouteControlState> => {
-  const response = await fetch("/control-route/", {
+  const response = await fetch("/api/control-route/", {
     method: "post",
     body: JSON.stringify({ route_id: routeId, state }),
   });
