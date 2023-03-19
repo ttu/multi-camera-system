@@ -11,7 +11,7 @@ export interface CameraStatausUpdate {
 }
 
 export interface CameraInfo {
-  cameraId: number;
+  camera_id: number;
   name: string;
   status: string;
 }

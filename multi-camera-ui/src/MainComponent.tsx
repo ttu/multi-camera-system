@@ -24,14 +24,18 @@ const MainComponent = () => {
     setSelectedRoute(selectedRoute);
   };
 
+  const controlRoute = (routeId: number, action: string) => api.controlRoute(routeId, action);
+
+  const controlCamera = (cameraId: number, action: string) => api.controlCamera(cameraId, action);
+
   return (
     <div className="App">
+      <CameraStatusList routes={routeInfo} />
       <RouteList routes={routeInfo} selectedRoute={selectedRoute} selectRoute={selectRoute} />
       {selectedRoute && <RouteCameras route={selectedRoute} />}
-      <CameraStatusList routes={routeInfo} />
+      {selectedRoute && <RouteActions route={selectedRoute} controlRoute={controlRoute} />}
+      {selectedRoute && <CameraActions route={selectedRoute} controlCamera={controlCamera} />}
       <CameraStreams routes={routeInfo} />
-      {selectedRoute && <RouteActions route={selectedRoute} />}
-      {selectedRoute && <CameraActions route={selectedRoute} />}
       <VideoPlayer />
     </div>
   );
