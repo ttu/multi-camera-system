@@ -1,6 +1,6 @@
-import { RoutesProps } from "../types";
+import { RouteInfo } from "../types";
 
-const CameraActions = (props: RoutesProps) => {
+const CameraActions = (props: {route: RouteInfo}) => {
   return (
     <>
       <h1>Camera Actions</h1>

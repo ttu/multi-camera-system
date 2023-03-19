@@ -1,15 +1,7 @@
-export interface RoutesProps {
-  routes: RouteInfo[];
-}
-
-export interface RouteProps {
-  route: RouteInfo;
-}
-
 export interface RouteInfo {
-  route_id: string;
+  route_id: number;
   name: string;
-  cameras: CameraInfo[];
+  cameras: { [key: string]: CameraInfo }; // key = route.route_id:c.camera_id
 }
 
 export interface CameraStatausUpdate {
@@ -19,7 +11,7 @@ export interface CameraStatausUpdate {
 }
 
 export interface CameraInfo {
-  cameraId: string;
+  cameraId: number;
   name: string;
   status: string;
 }

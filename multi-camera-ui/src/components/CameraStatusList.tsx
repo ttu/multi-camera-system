@@ -1,6 +1,6 @@
-import { RouteInfo, RouteProps, RoutesProps } from "../types";
+import { RouteInfo } from "../types";
 
-const CameraStatusList = (props: RoutesProps) => {
+const CameraStatusList = (props: { routes: RouteInfo[] }) => {
   const { routes } = props;
 
   return (
@@ -13,7 +13,7 @@ const CameraStatusList = (props: RoutesProps) => {
   );
 };
 
-const Route = (props: RouteProps) => {
+const Route = (props: { route: RouteInfo }) => {
   return (
     <div>
       <h4>{props.route.name}</h4>

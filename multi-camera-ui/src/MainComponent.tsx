@@ -7,20 +7,31 @@ import RouteList from "./components/RouteList";
 import VideoPlayer from "./components/VideoPlayer";
 import * as api from "./api";
 import useCameraStatusUpdater from "./useCameraStatusUpdater";
+import { useState } from "react";
+import { RouteInfo } from "./types";
+import RouteCameras from "./components/RouteCameras";
 
 const MainComponent = () => {
-  const status = useCameraStatusUpdater();
+  console.log("refresh");
+  const _ = useCameraStatusUpdater();
   const { data: routeInfo } = api.getRouteInfos();
+  const [selectedRoute, setSelectedRoute] = useState<RouteInfo>();
 
-  if (!routeInfo) return <div>No data</div>;
+  if (!routeInfo) return <div>Loading...</div>;
+
+  const selectRoute = (routeId: any) => {
+    const selectedRoute = routeInfo.find((route) => route.route_id === routeId);
+    setSelectedRoute(selectedRoute);
+  };
 
   return (
     <div className="App">
-      <RouteList routes={routeInfo} />
+      <RouteList routes={routeInfo} selectedRoute={selectedRoute} selectRoute={selectRoute} />
+      {selectedRoute && <RouteCameras route={selectedRoute} />}
       <CameraStatusList routes={routeInfo} />
       <CameraStreams routes={routeInfo} />
-      <RouteActions routes={routeInfo} />
-      <CameraActions routes={routeInfo} />
+      {selectedRoute && <RouteActions route={selectedRoute} />}
+      {selectedRoute && <CameraActions route={selectedRoute} />}
       <VideoPlayer />
     </div>
   );

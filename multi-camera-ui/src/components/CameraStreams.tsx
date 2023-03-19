@@ -1,6 +1,6 @@
-import { RoutesProps } from "../types";
+import { RouteInfo } from "../types";
 
-const CameraStreams = (props: RoutesProps) => {
+const CameraStreams = (props: {routes: RouteInfo[]}) => {
   return (
     <>
       <h1>Camera Streams</h1>

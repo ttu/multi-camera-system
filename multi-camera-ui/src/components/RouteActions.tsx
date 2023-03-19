@@ -1,10 +1,10 @@
-import { RoutesProps } from "../types";
+import { RouteInfo } from "../types";
 
-const RouteActions = (props: RoutesProps) => {
+const RouteActions = (props: {route: RouteInfo}) => {
   return (
     <>
       <h1>Route Actions</h1>
-      <div>TODO</div>
+      <div>Start Stop</div>
     </>
   );
 };
