@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import { CameraControlState, RouteControlState, RouteInfo, VideoFile, VideoFiles } from "./types";
 
-const fetchRouteInfos = async () => {
+export const fetchRouteInfos = async () => {
   const response = await fetch("/api/route-info/");
   console.log("fetch", "/api/route-info/");
   return (await response.json()) as RouteInfo[];
