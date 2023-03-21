@@ -13,7 +13,9 @@ import video_stream_consumer
 from common_types import CameraInfo, EventType, RouteInfo
 
 current_path = str(pathlib.Path().resolve())
-path_base = "" if current_path.endswith("src") else f"src{os.sep}"
+path_base = (
+    f"src{os.sep}" if current_path.endswith("multi-camera-server") else f"multi-camera-server{os.sep}src{os.sep}"
+)
 
 PATH_STATIC = f"{path_base}templates"
 VIDEO_PATH = f"{path_base}sample_videos{os.sep}bike_1_360p.mp4"
