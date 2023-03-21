@@ -1,15 +1,16 @@
+import { useState } from "react";
 import "./App.css";
+
 import CameraActions from "./components/CameraActions";
 import CameraStatusList from "./components/CameraStatusList";
 import CameraStreams from "./components/CameraStreams";
 import RouteActions from "./components/RouteActions";
+import RouteCameras from "./components/RouteCameras";
 import RouteList from "./components/RouteList";
 import VideoPlayer from "./components/VideoPlayer";
-import * as api from "./api";
 import useCameraStatusUpdater from "./useCameraStatusUpdater";
-import { useState } from "react";
+import * as api from "./api";
 import { RouteInfo } from "./types";
-import RouteCameras from "./components/RouteCameras";
 
 const MainComponent = () => {
   console.log("refresh");

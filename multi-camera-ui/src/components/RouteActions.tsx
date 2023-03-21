@@ -1,22 +1,21 @@
 import { RouteInfo } from "../types";
 
-interface RouteActionsProps {
+interface Props {
   route: RouteInfo;
   controlRoute: (routeId: number, action: string) => void;
 }
 
-const RouteActions = (props: RouteActionsProps) => {
-  const { route, controlRoute } = props;
+const RouteActions: React.FC<Props > = ({ route, controlRoute }) => {
 
-  const startRouteCameras = () => controlRoute(route.route_id, "start");
-  const stopRouteCameras = () => controlRoute(route.route_id, "stop");
+  const handleStartRoute = () => controlRoute(route.route_id, "start");
+  const handleStopRoute = () => controlRoute(route.route_id, "stop");
 
   return (
     <>
       <h1>Route Actions</h1>
       <div>
-        <button onClick={startRouteCameras}>Start</button>
-        <button onClick={stopRouteCameras}>Stop</button>
+        <button onClick={handleStartRoute}>Start</button>
+        <button onClick={handleStopRoute}>Stop</button>
       </div>
     </>
   );

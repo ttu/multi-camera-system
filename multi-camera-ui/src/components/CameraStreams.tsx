@@ -1,6 +1,10 @@
 import { RouteInfo } from "../types";
 
-const CameraStreams = (props: {routes: RouteInfo[]}) => {
+interface Props {
+  routes: RouteInfo[];
+}
+
+const CameraStreams: React.FC<Props> = ({ routes }) => {
   return (
     <>
       <h1>Camera Streams</h1>

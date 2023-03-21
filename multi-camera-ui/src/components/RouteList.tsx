@@ -1,3 +1,4 @@
+import React from "react";
 import { RouteInfo } from "../types";
 
 interface RoutesProps {
@@ -12,9 +13,7 @@ interface RouteProps {
   selectRoute: (routeId: number) => void;
 }
 
-const RouteList = (props: RoutesProps) => {
-  const { routes } = props;
-
+const RouteList: React.FC<RoutesProps> = ({ routes, selectedRoute, selectRoute }) => {
   return (
     <>
       <h1>Routes</h1>
@@ -22,9 +21,9 @@ const RouteList = (props: RoutesProps) => {
         {routes?.map((route) => (
           <Route
             key={route.route_id}
-            isSelected={props.selectedRoute?.route_id == route.route_id}
+            isSelected={selectedRoute?.route_id === route.route_id}
             route={route}
-            selectRoute={props.selectRoute}
+            selectRoute={selectRoute}
           />
         ))}
       </div>
@@ -32,12 +31,12 @@ const RouteList = (props: RoutesProps) => {
   );
 };
 
-const Route = (props: RouteProps) => {
+const Route: React.FC<RouteProps> = ({ route, isSelected, selectRoute }) => {
   return (
     <div>
-      {props.isSelected && <b>X</b>}
-      <h2>{`${props.route.route_id}: ${props.route.name}`}</h2>{" "}
-      <button onClick={() => props.selectRoute(props.route.route_id)}>Select</button>
+      {isSelected && <b>X</b>}
+      <h2>{`${route.route_id}: ${route.name}`}</h2>
+      <button onClick={() => selectRoute(route.route_id)}>Select</button>
     </div>
   );
 };

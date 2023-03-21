@@ -5,25 +5,18 @@ interface CameraActionsProps {
   controlCamera: (cameraId: number, action: string) => void;
 }
 
-const CameraActions = (props: CameraActionsProps) => {
-  const { route, controlCamera } = props;
-
-  const startCamera = (cameraId: number) => controlCamera(cameraId, "start");
-  const stopCamera = (cameraId: number) => controlCamera(cameraId, "stop");
-  const recordCamera = (cameraId: number) => controlCamera(cameraId, "record");
-  const pauseCamera = (cameraId: number) => controlCamera(cameraId, "pause");
-
+const CameraActions: React.FC<CameraActionsProps> = ({ route, controlCamera }) => {
   return (
     <>
       <h1>Camera Actions</h1>
 
       {Object.values(route.cameras).map((camera) => (
-        <div>
+        <div key={camera.camera_id}>
           <span>{camera.name}</span>
-          <button onClick={() => startCamera(camera.camera_id)}>Start</button>
-          <button onClick={() => stopCamera(camera.camera_id)}>Stop</button>
-          <button onClick={() => recordCamera(camera.camera_id)}>Record</button>
-          <button onClick={() => pauseCamera(camera.camera_id)}>Pause</button>
+          <button onClick={() => controlCamera(camera.camera_id, "start")}>Start</button>
+          <button onClick={() => controlCamera(camera.camera_id, "stop")}>Stop</button>
+          <button onClick={() => controlCamera(camera.camera_id, "record")}>Record</button>
+          <button onClick={() => controlCamera(camera.camera_id, "pause")}>Pause</button>
         </div>
       ))}
     </>

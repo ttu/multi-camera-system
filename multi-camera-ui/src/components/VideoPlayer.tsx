@@ -3,9 +3,9 @@ import * as api from "../api";
 import { VideoFile } from "../types";
 
 const VideoPlayer = () => {
-  const videoRef = useRef();
-  const [files, setfiles] = useState<VideoFile[]>();
-  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string>();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [files, setfiles] = useState<VideoFile[]>([]);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string>("");
 
   useEffect(() => {
     api.getVideoFiles().then((videoFiles) => {
@@ -14,20 +14,22 @@ const VideoPlayer = () => {
     });
   }, []);
 
-  const setVideoUrl = (e: any) => {
-    setSelectedVideoUrl(`/api/video/${e.target.value}`);
-  };
-
   useEffect(() => {
     videoRef.current?.load();
   }, [selectedVideoUrl]);
 
+  const handleFileSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedVideoUrl(`/api/video/${e.target.value}`);
+  };
+
   return (
-    <>
+    <div>
       <h1>Video Player</h1>
-      <select onChange={setVideoUrl}>
+      <select onChange={handleFileSelectChange}>
         {files?.map((file) => (
-          <option value={file.name}>{file.title}</option>
+          <option key={file.name} value={file.name}>
+            {file.title}
+          </option>
         ))}
       </select>
       <div>
@@ -35,7 +37,7 @@ const VideoPlayer = () => {
           <source src={selectedVideoUrl} type="video/mp4" />
         </video>
       </div>
-    </>
+    </div>
   );
 };
 
