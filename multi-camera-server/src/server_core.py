@@ -25,14 +25,15 @@ CHUNK_SIZE = 1024 * 1024
 
 @dataclass
 class SocketFramePayload:
-    sender: str
+    camera_id: int
     frame: bytes
     type: str = "frame"
 
 
 @dataclass
 class SocketStatusPayload:
-    sender: str
+    route_id: int
+    camera_id: int
     status: str | None
     type: str = "status"
 
@@ -90,7 +91,7 @@ async def listen_for_server_events(queue: Queue[SocketStatusPayload]):
             camera = _get_camera([route], int(camera_id))
             camera.status = payload
             camera.status_update_time = str(datetime.now())
-            await queue.put(SocketStatusPayload(f"{route.route_id}:{camera.camera_id}", payload))
+            await queue.put(SocketStatusPayload(route.route_id, camera.camera_id, payload))
             print("Camera status", {"camera_id": camera.camera_id, "status": payload})
 
 
@@ -102,7 +103,7 @@ async def check_initial_camera_info(queue: Queue[SocketStatusPayload]):
         for camera in route.cameras:
             print("Camera address", {"camera_id": camera.camera_id, "address": camera.address})
             print("Camera status", {"camera_id": camera.camera_id, "status": camera.status})
-            await queue.put(SocketStatusPayload(f"{route.route_id}:{camera.camera_id}", camera.status))
+            await queue.put(SocketStatusPayload(route.route_id, camera.camera_id, camera.status))
 
 
 async def get_video_streams_and_show_in_window(queue: Queue[SocketFramePayload]):
@@ -113,7 +114,7 @@ async def get_video_streams_and_show_in_window(queue: Queue[SocketFramePayload])
             continue
         key = f"{address[0]}:{address[1]}"
         camera = _get_camera_with_address(ROUTE_INFOS, key)
-        await queue.put(SocketFramePayload(str(camera.camera_id), encodedImage.tobytes()))
+        await queue.put(SocketFramePayload(camera.camera_id, encodedImage.tobytes()))
         if key not in windows:
             windows[key] = True
             cv2.namedWindow(key)
@@ -131,7 +132,7 @@ async def get_video_streams(queue: Queue[SocketFramePayload]):
             continue
         key = f"{address[0]}:{address[1]}"
         camera = _get_camera_with_address(ROUTE_INFOS, key)
-        await queue.put(SocketFramePayload(str(camera.camera_id), encodedImage.tobytes()))
+        await queue.put(SocketFramePayload(camera.camera_id, encodedImage.tobytes()))
 
 
 def get_video_file_chunk(file_id: str, chunk_start: str, chunk_end: str | None):

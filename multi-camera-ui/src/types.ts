@@ -1,11 +1,12 @@
 export interface RouteInfo {
   route_id: number;
   name: string;
-  cameras: { [key: string]: CameraInfo }; // key = route.route_id:c.camera_id
+  cameras: CameraInfo[];
 }
 
 export interface CameraStatausUpdate {
-  sender: string;
+  route_id: number;
+  camera_id: number;
   status: string;
   type: string;
 }

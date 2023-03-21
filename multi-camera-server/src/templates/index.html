@@ -139,21 +139,20 @@
               if (!event?.data) return;
               const payload = JSON.parse(event.data);
               if (payload.type == "status") {
-                // payload.sender = route:camera_id e.g. 1:1
-                this.cameras[payload.sender].status = payload.status;
+                this.cameras[payload.camera_id].status = payload.status;
               }
             };
 
             const sockets = Object.entries(this.cameras).map((value) => {
               const cameraId = value[1].cameraId;
-              const route = this.getCameraRoute(cameraId);
+              // const route = this.getCameraRoute(cameraId);
               const camera_ws = new WebSocket(
                 `ws://localhost:8000/camera-stream/${cameraId}`
               );
               camera_ws.onmessage = (event) => {
                 if (!event?.data) return;
                 if (event.data instanceof Blob) {
-                  this.cameras[`${route.route_id}:${cameraId}`].frameCount++;
+                  this.cameras[cameraId].frameCount++;
                   const image = document.getElementById(`frame_${cameraId}`);
                   image.src = URL.createObjectURL(event.data);
                   image.onload = () => {

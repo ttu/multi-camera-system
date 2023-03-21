@@ -39,7 +39,7 @@ class CameraDto:
 class RouteDto:
     route_id: int
     name: str
-    cameras: dict[str, CameraDto]
+    cameras: list[CameraDto]
 
 
 @dataclass
@@ -75,7 +75,7 @@ status_queue: Queue[server_core.SocketStatusPayload] = Queue()
 stream_queue: Queue[server_core.SocketFramePayload] = Queue()
 
 status_sockets: list[WebSocket] = []
-stream_sockets: dict[str, list[WebSocket]] = {}
+stream_sockets: dict[int, list[WebSocket]] = {}
 
 
 async def _send_queue_messages_json(queue: Queue[server_core.SocketStatusPayload], sockets: list[WebSocket]):
@@ -92,9 +92,9 @@ async def _send_queue_messages_json(queue: Queue[server_core.SocketStatusPayload
 async def _send_queue_messages_bytes(queue: Queue[server_core.SocketFramePayload], sockets: dict[str, list[WebSocket]]):
     while True:
         next = await queue.get()
-        if not sockets or str(next.sender) not in sockets:
+        if not sockets or next.camera_id not in sockets:
             continue
-        selected_sockets = sockets[str(next.sender)]
+        selected_sockets = sockets[next.camera_id]
         for socket in selected_sockets:
             try:
                 await socket.send_bytes(next.frame)
@@ -108,7 +108,7 @@ def _map_camera_to_dto(camera: CameraInfo):
 
 
 def _map_route_info_to_dto(route: RouteInfo):
-    cameras = {f"{route.route_id}:{c.camera_id}": _map_camera_to_dto(c) for c in route.cameras}
+    cameras = [_map_camera_to_dto(c) for c in route.cameras]
     return RouteDto(route.route_id, route.name, cameras)
 
 
@@ -180,15 +180,15 @@ async def websocket_stream_endpoint(websocket: WebSocket, camera_id: int):
     await websocket.accept()
     try:
         if camera_id not in stream_sockets:
-            stream_sockets[str(camera_id)] = []
-        stream_sockets[str(camera_id)].append(websocket)
+            stream_sockets[camera_id] = []
+        stream_sockets[camera_id].append(websocket)
         while True:
             await asyncio.sleep(100)
     except WebSocketDisconnect:
         print("Client disconnected")
     except Exception as e:
         print(e)
-    stream_sockets[str(camera_id)].remove(websocket)
+    stream_sockets[camera_id].remove(websocket)
 
 
 @app.websocket("/status-updates")
