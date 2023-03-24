@@ -9,7 +9,7 @@ const RouteCameras: React.FC<Props> = ({ route }) => {
     <div>
       <h1>{route.name}</h1>
       {route.cameras.map((camera) => (
-        <div key={camera.camera_id}>{`${camera.name}: ${camera.status}`}</div>
+        <div key={camera.cameraId}>{`${camera.name}: ${camera.status}`}</div>
       ))}
     </div>
   );

@@ -26,10 +26,10 @@
       </div>
       <div>
         <h3>Route actions</h3>
-        <button @click="controlRoute(selectedRoute.route_id, 'start')">
+        <button @click="controlRoute(selectedRoute.routeId, 'start')">
           Start
         </button>
-        <button @click="controlRoute(selectedRoute.route_id, 'stop')">
+        <button @click="controlRoute(selectedRoute.routeId, 'stop')">
           Stop
         </button>
       </div>
@@ -139,7 +139,7 @@
               if (!event?.data) return;
               const payload = JSON.parse(event.data);
               if (payload.type == "status") {
-                this.cameras[payload.camera_id].status = payload.status;
+                this.cameras[payload.cameraId].status = payload.status;
               }
             };
 
@@ -167,7 +167,7 @@
           async controlCamera(cameraId, state) {
             const response = await fetch("/control-camera/", {
               method: "post",
-              body: JSON.stringify({ camera_id: cameraId, state }),
+              body: JSON.stringify({ cameraId, state }),
             });
             const content = await response.json();
             console.log(content);
@@ -175,7 +175,7 @@
           async controlRoute(routeId, state) {
             const response = await fetch("/control-route/", {
               method: "post",
-              body: JSON.stringify({ route_id: routeId, state }),
+              body: JSON.stringify({ routeId, state }),
             });
             const content = await response.json();
             console.log(content);

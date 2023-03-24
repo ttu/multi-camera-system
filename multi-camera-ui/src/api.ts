@@ -23,7 +23,7 @@ export const getVideoFiles = async (): Promise<VideoFile[]> => {
 export const controlCamera = async (cameraId: number, state: string): Promise<CameraControlState> => {
   const response = await fetch("/api/control-camera/", {
     method: "post",
-    body: JSON.stringify({ camera_id: cameraId, state }),
+    body: JSON.stringify({ cameraId, state }),
   });
   const content = (await response.json()) as CameraControlState;
   return content;
@@ -32,7 +32,7 @@ export const controlCamera = async (cameraId: number, state: string): Promise<Ca
 export const controlRoute = async (routeId: number, state: string): Promise<RouteControlState> => {
   const response = await fetch("/api/control-route/", {
     method: "post",
-    body: JSON.stringify({ route_id: routeId, state }),
+    body: JSON.stringify({ routeId, state }),
   });
   const content = (await response.json()) as RouteControlState;
   return content;

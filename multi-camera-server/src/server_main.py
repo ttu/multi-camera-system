@@ -37,20 +37,20 @@ class CameraDto:
 
 @dataclass
 class RouteDto:
-    route_id: int
+    routeId: int
     name: str
     cameras: list[CameraDto]
 
 
 @dataclass
 class RouteControlDto:
-    route_id: str
+    routeId: str
     state: str
 
 
 @dataclass
 class CameraControlDto:
-    camera_id: str
+    cameraId: str
     state: str
 
 
@@ -61,7 +61,7 @@ class VideoFilesDto:
 
 @dataclass
 class RouteControlRequest:
-    route_id: int
+    routeId: int
     state: str
 
 
@@ -113,7 +113,7 @@ def _map_route_info_to_dto(route: RouteInfo):
 
 
 @app.get("/route-info/", response_model=list[RouteDto])
-async def camera_info(request: Request):
+async def route_info(request: Request):
     route_data = [_map_route_info_to_dto(route) for route in server_core.ROUTE_INFOS]
     return route_data
 
@@ -121,7 +121,7 @@ async def camera_info(request: Request):
 @app.post("/control-route/", response_model=RouteControlDto)
 async def control_route(request: Request):
     data = await request.json()
-    route_id = data["route_id"]
+    route_id = data["routeId"]
     state = data["state"]
 
     if state not in ["start", "stop"]:
@@ -141,7 +141,7 @@ async def control_route(request: Request):
 @app.post("/control-camera/", response_model=CameraControlDto)
 async def control_camera(request: Request):
     data = await request.json()
-    camera_id = data["camera_id"]
+    camera_id = data["cameraId"]
     state = data["state"]
     event = EventType(state)
 

@@ -10,12 +10,12 @@ interface RouteProps {
 
 const CameraStatusList: React.FC<RoutesProps> = ({ routes }) => {
   return (
-    <div>
+    <>
       <h1>Camera Status List</h1>
       {routes?.map((route) => (
-        <Route key={route.route_id} route={route} />
+        <Route key={route.routeId} route={route} />
       ))}
-    </div>
+    </>
   );
 };
 
@@ -24,7 +24,7 @@ const Route: React.FC<RouteProps> = ({ route }) => {
     <div>
       <h4>{route.name}</h4>
       {Object.values(route.cameras).map((camera) => (
-        <div key={camera.camera_id}>{`${camera.name}: ${camera.status}`}</div>
+        <div key={camera.cameraId}>{`${camera.name}: ${camera.status}`}</div>
       ))}
     </div>
   );

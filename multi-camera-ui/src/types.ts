@@ -1,18 +1,18 @@
 export interface RouteInfo {
-  route_id: number;
+  routeId: number;
   name: string;
   cameras: CameraInfo[];
 }
 
 export interface CameraStatausUpdate {
-  route_id: number;
-  camera_id: number;
+  routeId: number;
+  cameraId: number;
   status: string;
   type: string;
 }
 
 export interface CameraInfo {
-  camera_id: number;
+  cameraId: number;
   name: string;
   status: string;
 }
@@ -27,11 +27,11 @@ export type VideoFile = {
 };
 
 export interface CameraControlState {
-  camera_id: number;
+  cameraId: number;
   state: string;
 }
 
 export interface RouteControlState {
-  route_id: number;
+  routeId: number;
   state: string;
 }

@@ -11,12 +11,12 @@ const CameraActions: React.FC<CameraActionsProps> = ({ route, controlCamera }) =
       <h1>Camera Actions</h1>
 
       {Object.values(route.cameras).map((camera) => (
-        <div key={camera.camera_id}>
+        <div key={camera.cameraId}>
           <span>{camera.name}</span>
-          <button onClick={() => controlCamera(camera.camera_id, "start")}>Start</button>
-          <button onClick={() => controlCamera(camera.camera_id, "stop")}>Stop</button>
-          <button onClick={() => controlCamera(camera.camera_id, "record")}>Record</button>
-          <button onClick={() => controlCamera(camera.camera_id, "pause")}>Pause</button>
+          <button onClick={() => controlCamera(camera.cameraId, "start")}>Start</button>
+          <button onClick={() => controlCamera(camera.cameraId, "stop")}>Stop</button>
+          <button onClick={() => controlCamera(camera.cameraId, "record")}>Record</button>
+          <button onClick={() => controlCamera(camera.cameraId, "pause")}>Pause</button>
         </div>
       ))}
     </>

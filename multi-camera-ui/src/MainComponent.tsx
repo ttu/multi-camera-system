@@ -48,7 +48,7 @@ const MainComponent = () => {
       {selectedRoute && <RouteCameras route={selectedRoute} />}
       {selectedRoute && <RouteActions route={selectedRoute} controlRoute={controlRoute} />}
       {selectedRoute && <CameraActions route={selectedRoute} controlCamera={controlCamera} />}
-      <CameraStreams routes={routeInfo} />
+      {selectedRoute && <CameraStreams route={selectedRoute} />}
       <VideoPlayer />
     </div>
   );

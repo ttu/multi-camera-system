@@ -5,10 +5,9 @@ interface Props {
   controlRoute: (routeId: number, action: string) => void;
 }
 
-const RouteActions: React.FC<Props > = ({ route, controlRoute }) => {
-
-  const handleStartRoute = () => controlRoute(route.route_id, "start");
-  const handleStopRoute = () => controlRoute(route.route_id, "stop");
+const RouteActions: React.FC<Props> = ({ route, controlRoute }) => {
+  const handleStartRoute = () => controlRoute(route.routeId, "start");
+  const handleStopRoute = () => controlRoute(route.routeId, "stop");
 
   return (
     <>
