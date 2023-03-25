@@ -16,7 +16,7 @@ import useCameraStatusUpdaterNotify from "./useCameraStatusUpdaterNotify";
 const MainComponent = () => {
   // const _ = useCameraStatusUpdater();
   // const { data: routeInfo } = api.getRouteInfos();
-  
+
   useCameraStatusUpdaterNotify((data) => {
     console.log(data);
   });
@@ -24,7 +24,7 @@ const MainComponent = () => {
   const [routeInfo, setRouteInfo] = useState<RouteInfo[]>([]);
   const [selectedRoute, setSelectedRoute] = useState<RouteInfo>();
 
-  console.log(selectedRoute)
+  console.log(selectedRoute);
   if (!routeInfo) return <div>Loading...</div>;
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const MainComponent = () => {
   }, []);
 
   const selectRoute = (routeId: any) => {
-    const selectedRoute = routeInfo.find((route) => route.route_id === routeId);
+    const selectedRoute = routeInfo.find((route) => route.routeId === routeId);
     setSelectedRoute(selectedRoute);
   };
 
@@ -48,7 +48,7 @@ const MainComponent = () => {
       {selectedRoute && <RouteCameras route={selectedRoute} />}
       {selectedRoute && <RouteActions route={selectedRoute} controlRoute={controlRoute} />}
       {selectedRoute && <CameraActions route={selectedRoute} controlCamera={controlCamera} />}
-      {selectedRoute && <CameraStreams route={selectedRoute} />}
+      {selectedRoute && <CameraStreams cameras={selectedRoute.cameras} />}
       <VideoPlayer />
     </div>
   );
