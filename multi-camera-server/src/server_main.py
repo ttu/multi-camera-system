@@ -104,7 +104,7 @@ async def _send_queue_messages_bytes(queue: Queue[server_core.SocketFramePayload
 
 
 def _map_camera_to_dto(camera: CameraInfo):
-    return CameraDto(camera.camera_id, camera.name, camera.status, 0)
+    return CameraDto(camera.camera_id, camera.name, camera.status or "unknown", 0)
 
 
 def _map_route_info_to_dto(route: RouteInfo):
@@ -161,7 +161,7 @@ async def control_camera(request: Request):
 async def get_video_files(request: Request):
     files = file_storage.get_files()
     if not files:
-        return Response(None, 500)
+        return Response(None, 404)
     return VideoFilesDto([f.name for f in files])
 
 
