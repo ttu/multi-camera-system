@@ -26,6 +26,11 @@ System for controlling multiple cameras
 
 ### Install
 
+Requirements
+```sh
+asdf install
+```
+
 Server
 ```sh
 cd multi-camera-server
@@ -38,6 +43,7 @@ Front-end
 ```sh
 cd multi-camera-ui
 npm install
+npm run dev
 ```
 
 #### Postgres
