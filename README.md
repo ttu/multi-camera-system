@@ -65,7 +65,7 @@ docker exec -it postgres psql "postgres://postgres:mysecretpassword@localhost:54
 docker exec -it postgres psql "postgres://postgres:mysecretpassword@localhost:5432/postgres" -c "CREATE DATABASE camera_db"
 ```
 
-Check `DB_CONNECTION` from `common_config.py`.
+Check `DB_CONNECTION` from `.env`.
 
 NOTE: `psycopg` is installed in binary mode.
 
@@ -86,7 +86,7 @@ docker run \
 
 Create a new access key from `http://127.0.0.1:9090/access-keys`.
 
-Update access and secret key from `common_config.py`.
+Update access and secret key from `.env`.
 
 ### Run
 

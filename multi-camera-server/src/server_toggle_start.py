@@ -1,5 +1,9 @@
 import sys
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import data_store
 import event_handler
 from common_types import EventType
