@@ -60,6 +60,14 @@ class VideoFilesDto:
 
 
 @dataclass
+class SocketStatusDto:
+    routeId: int
+    cameraId: int
+    status: str | None
+    type: str = "status"
+
+
+@dataclass
 class RouteControlRequest:
     routeId: int
     state: str
@@ -83,7 +91,8 @@ async def _send_queue_messages_json(queue: Queue[server_core.SocketStatusPayload
         next = await queue.get()
         for socket in sockets:
             try:
-                await socket.send_json(asdict(next))
+                dto = SocketStatusDto(next.route_id, next.camera_id, next.status)
+                await socket.send_json(asdict(dto))
             except Exception as ex:
                 sockets.remove(socket)
                 print(ex)
