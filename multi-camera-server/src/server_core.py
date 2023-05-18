@@ -6,16 +6,20 @@ from datetime import datetime
 
 import cv2
 
+import common_config
 import data_store
 import event_handler
 import file_storage
 import video_stream_consumer
 from common_types import CameraInfo, EventType, RouteInfo
 
-current_path = str(pathlib.Path().resolve())
-path_base = (
-    f"src{os.sep}" if current_path.endswith("multi-camera-server") else f"multi-camera-server{os.sep}src{os.sep}"
-)
+if common_config.UVICORN_BASE_PATH:
+    path_base = common_config.UVICORN_BASE_PATH
+else:
+    current_path = str(pathlib.Path().resolve())
+    path_base = (
+        f"src{os.sep}" if current_path.endswith("multi-camera-server") else f"multi-camera-server{os.sep}src{os.sep}"
+    )
 
 PATH_STATIC = f"{path_base}templates"
 VIDEO_PATH = f"{path_base}sample_videos{os.sep}bike_1_360p.mp4"
