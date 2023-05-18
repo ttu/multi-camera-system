@@ -10,10 +10,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import event_handler
 import file_storage
 import server_core
 from common_types import CameraInfo, EventType, RouteInfo
+
 
 app = FastAPI()
 

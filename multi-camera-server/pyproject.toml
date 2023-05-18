@@ -16,7 +16,8 @@ dependencies = [
     "uvicorn[standard]",
     "psycopg",
     "psycopg-binary",
-    "minio"
+    "minio",
+    "python-dotenv"
 ]
 
 [project.optional-dependencies]

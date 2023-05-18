@@ -4,6 +4,10 @@ import time
 from threading import Thread
 from typing import Callable
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import camera_record_loop
 import data_store
 import event_handler
@@ -111,7 +115,6 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
         _update_address_info(camera_id, SOCKET.socket_object)
 
     while True:
-
         if not _camera_on(camera_id):
             print("idle", {"camera_id": camera_id})
             time.sleep(2)

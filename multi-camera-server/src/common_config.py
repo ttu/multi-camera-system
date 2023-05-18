@@ -1,8 +1,9 @@
-# TODO: Move to .env
-DB_NAME = "camera-runner.db"
-SERVER_HOST = "127.0.0.1"
-SERVER_PORT = 65432
-DB_CONNECTION = "postgres://postgres:mysecretpassword@127.0.0.1:5432/camera_db"
-MINIO_ENDPOINT = "localhost:9000"
-MINIO_ACCESS_KEY = "1jsx8tTO5pMjAywX"
-MINIO_SECRET_KEY = "n7BtPPMe0di0kMW1x3fZ7IUj5aa26r16"
+import os
+
+
+SERVER_HOST = os.environ.get("SERVER_HOST", None)
+SERVER_PORT = int(os.environ.get("SERVER_PORT", None))
+DB_CONNECTION = os.environ.get("DB_CONNECTION", None)
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", None)
+MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", None)
+MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", None)

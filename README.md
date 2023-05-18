@@ -37,6 +37,7 @@ cd multi-camera-server
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install .[dev]
+cp .env.example .env
 ```
 
 Front-end
