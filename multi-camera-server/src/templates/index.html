@@ -125,6 +125,8 @@
           },
           async fetchFileNames() {
             const response = await fetch("/video-files/");
+            if (!response.ok) return;
+
             const content = await response.json();
             this.files = content["files"].map((f) => ({
               title: f,

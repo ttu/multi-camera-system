@@ -170,7 +170,7 @@ async def control_camera(request: Request):
 async def get_video_files(request: Request):
     files = file_storage.get_files()
     if not files:
-        return Response(None, 404)
+        return JSONResponse(content={}, status_code=status.HTTP_404_NOT_FOUND)
     return VideoFilesDto([f.name for f in files])
 
 

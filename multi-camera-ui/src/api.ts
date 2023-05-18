@@ -11,6 +11,8 @@ export const getRouteInfos = () => useQuery("routes", fetchRouteInfos);
 
 export const getVideoFiles = async (): Promise<VideoFile[]> => {
   const response = await fetch("/api/video-files/");
+  if (!response.ok) return [];
+  
   console.log("fetch", "/video-files/");
   const content = (await response.json()) as VideoFiles;
   const files = content.files.map((f) => ({
