@@ -5,6 +5,7 @@ from multiprocessing import Process
 import uvicorn
 
 import camera_main
+import common_config
 import data_store
 import server_main
 
@@ -23,4 +24,4 @@ if __name__ == "__main__":
     # camera_process = Process(target=camera_main.main_loop, args=[0, False], daemon=True)
     # camera_process.start()
 
-    uvicorn.run(server_main.app, host="127.0.0.1", port=8000)
+    uvicorn.run(server_main.app, host=common_config.UVICORN_HOST, port=common_config.UVICORN_PORT)

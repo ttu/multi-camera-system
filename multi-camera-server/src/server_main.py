@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import common_config
 import event_handler
 import file_storage
 import server_core
@@ -239,4 +240,4 @@ if __name__ == "__main__":
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host=common_config.UVICORN_HOST, port=common_config.UVICORN_PORT)
