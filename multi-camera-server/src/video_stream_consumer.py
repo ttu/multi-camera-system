@@ -48,7 +48,12 @@ def _on_new_client(client_socket: socket.socket, address: Address, queue: Queue[
 
 def _start_socket_listener(queue: Queue[Tuple[Address, VideoFrame]]) -> Generator[VideoFrame, None, None]:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((common_config.SERVER_HOST, common_config.SERVER_PORT))
+        ip = (
+            common_config.SERVER_HOST
+            if common_config.IS_SERVER_HOST_IP
+            else socket.gethostbyname(common_config.SERVER_HOST)
+        )
+        s.bind((ip, common_config.SERVER_PORT))
         s.listen()
         while True:
             conn, addr = s.accept()

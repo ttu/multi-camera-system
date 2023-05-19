@@ -9,7 +9,12 @@ from common_types import VideoFrame
 def try_init_socket() -> socket.socket | None:
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((common_config.SERVER_HOST, common_config.SERVER_PORT))
+        ip = (
+            common_config.SERVER_HOST
+            if common_config.IS_SERVER_HOST_IP
+            else socket.gethostbyname(common_config.SERVER_HOST)
+        )
+        s.connect((ip, common_config.SERVER_PORT))
         return s
     except Exception:
         print("Socket init failed")
