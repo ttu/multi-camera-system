@@ -11,10 +11,6 @@ from common_types import CameraConfig, CameraStatus, VideoCaptureDevice, VideoFr
 
 # pylint: disable=duplicate-code, unused-argument
 
-current_path = str(pathlib.Path().resolve())
-source_path = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"
-video_record_path = f"{source_path}{os.sep}temp_video{os.sep}"
-
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
     print("Camera starting", {"camera_id": camera_id})
@@ -26,7 +22,22 @@ def shutdown_camera(video_capture: VideoCaptureDevice):
     video_capture.release()
 
 
+def _get_source_path():
+    current_path = str(pathlib.Path().resolve())
+    source_path = current_path if current_path.endswith("src") else f"{current_path}{os.sep}src"
+    return source_path
+
+
+def _get_video_record_path():
+    video_record_path = f"{_get_source_path()}{os.sep}temp_video{os.sep}"
+    return video_record_path
+
+
 def _create_output(camera_config: CameraConfig) -> VideoWriter:
+    video_record_path = _get_video_record_path()
+    if not os.path.exists(video_record_path):
+        os.makedirs(video_record_path)
+
     file_name = f"record_{camera_config.camera_id}_{round(time.time())}.mp4"
     file_full_path = f"{video_record_path}{file_name}"
 

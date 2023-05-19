@@ -9,8 +9,8 @@ from common_types import CameraConfig, CameraStatus, VideoCaptureDevice, VideoFr
 
 # pylint: disable=duplicate-code, unused-argument, protected-access
 
-VIDEO_1 = f"{camera_record_loop.source_path}{os.sep}sample_videos{os.sep}bike_1_360p.mp4"
-VIDEO_2 = f"{camera_record_loop.source_path}{os.sep}sample_videos{os.sep}bike_2_360p.mp4"
+VIDEO_1 = f"{camera_record_loop._get_source_path()}{os.sep}sample_videos{os.sep}bike_1_360p.mp4"
+VIDEO_2 = f"{camera_record_loop._get_source_path()}{os.sep}sample_videos{os.sep}bike_2_360p.mp4"
 
 
 def prepare_camera(camera_id: int) -> VideoCaptureDevice:
