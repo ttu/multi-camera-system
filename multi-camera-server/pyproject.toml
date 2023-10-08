@@ -28,7 +28,8 @@ dev = [
     "mypy",
     "black",
     "isort",
-    "pre-commit"
+    "pre-commit",
+    "httpx"
 ]
 
 [tool.flake8]

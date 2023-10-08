@@ -9,12 +9,30 @@ BUCKET_NAME = "camera-system"
 # Error: [SSL: WRONG_VERSION_NUMBER] wrong version number
 # https://github.com/minio/minio/issues/8161
 
-client = Minio(
-    common_config.MINIO_ENDPOINT,
-    access_key=common_config.MINIO_ACCESS_KEY,
-    secret_key=common_config.MINIO_SECRET_KEY,
-    secure=False,
-)
+
+def get_client():
+    client = Minio(
+        common_config.MINIO_ENDPOINT,
+        access_key=common_config.MINIO_ACCESS_KEY,
+        secret_key=common_config.MINIO_SECRET_KEY,
+        secure=False,
+    )
+    return client
+
+
+def get_test_client():
+    class MinioMock:
+        def __init__(self):
+            self.bucket_exists = lambda x: True
+            self.make_bucket = lambda x: None
+            self.fput_object = lambda x, y, z: None
+            self.get_object = lambda x, y, offset, length: None
+            self.list_objects = lambda x, prefix: []
+
+    return MinioMock()
+
+
+client = get_client() if not common_config.IS_TEST else get_test_client()
 
 if not client.bucket_exists(BUCKET_NAME):
     client.make_bucket(BUCKET_NAME)

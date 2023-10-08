@@ -23,7 +23,8 @@ from common_types import CameraInfo, EventType, RouteInfo
 
 app = FastAPI()
 
-app.mount("/site", StaticFiles(directory=server_core.PATH_STATIC, html=True), name="static")
+if not common_config.IS_TEST:
+    app.mount("/site", StaticFiles(directory=server_core.PATH_STATIC, html=True), name="static")
 
 origins = ["http://localhost:8000", "localhost:8000"]
 
