@@ -27,11 +27,13 @@ System for controlling multiple cameras
 ### Install
 
 Requirements
+
 ```sh
 asdf install
 ```
 
 Server
+
 ```sh
 cd multi-camera-server
 python -m venv .venv
@@ -41,6 +43,7 @@ cp .env.example .env
 ```
 
 Front-end
+
 ```sh
 cd multi-camera-ui
 npm install
@@ -110,6 +113,7 @@ python src/camera_main.py --dummy-mode True
 ### Docker
 
 Create network to connect containers
+
 ```sh
 docker network create camera-network
 docker network connect camera-network postgres
@@ -117,6 +121,7 @@ docker network connect camera-network minio
 ```
 
 Change connections strings in `.env` file
+
 ```py
 # Use host name instead of IP address
 SERVER_HOST="camera-server"
@@ -128,8 +133,16 @@ UVICORN_BASE_PATH="/app/src/"
 ```
 
 Start containers
+
 ```sh
 docker build -t camera-system .
 docker run --name camera-server --network camera-network -p 8000:8000 --rm camera-system python src/server_main.py
 docker run --name camera-camera --network camera-network --rm camera-system python src/camera_main.py --dummy-mode True
+```
+
+#### Docker Compose
+
+```sh
+chmod +x setup.sh
+./setup.sh
 ```

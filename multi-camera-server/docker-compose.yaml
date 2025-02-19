@@ -32,7 +32,7 @@ services:
       - 9090:9090
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
+      interval: 10s
       timeout: 20s
       retries: 3
   camera-server:
@@ -43,6 +43,8 @@ services:
     command: ["python", "src/server_main.py"]
     volumes:
       - ./:/app:ro
+    environment:
+      DB_CONNECTION: "postgres://postgres:mysecretpassword@postgres:5432/camera_db"
     env_file:
       - ./.env
     depends_on:
@@ -51,6 +53,8 @@ services:
   camera-camera:
     image: multi-camera-system
     command: ["python", "src/camera_main.py", "--dummy-mode", "True"]
+    environment:
+      DB_CONNECTION: "postgres://postgres:mysecretpassword@postgres:5432/camera_db"
     env_file:
       - ./.env
     depends_on:
