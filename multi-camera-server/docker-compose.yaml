@@ -1,5 +1,10 @@
-version: '3.7'
 name: multi-camera-server
+
+x-camera-common-variables: &camera-common-variables
+  SERVER_HOST: "camera-server"
+  DB_CONNECTION: "postgres://postgres:mysecretpassword@postgres:5432/camera_db"
+  MINIO_ENDPOINT: "minio:9000"
+  ENV: "development"
 
 services:
   postgres:
@@ -44,17 +49,49 @@ services:
     volumes:
       - ./:/app:ro
     environment:
-      DB_CONNECTION: "postgres://postgres:mysecretpassword@postgres:5432/camera_db"
+      UVICORN_HOST: "0.0.0.0"
+      UVICORN_BASE_PATH: "/app/src/"
+      <<: *camera-common-variables
     env_file:
       - ./.env
     depends_on:
       - postgres
       - minio
-  camera-camera:
+    ports:
+      - 8000:8000
+  camera-camera-0:
     image: multi-camera-system
-    command: ["python", "src/camera_main.py", "--dummy-mode", "True"]
+    command: ["python", "-u", "src/camera_main.py", "--camera-id=0", "--dummy-mode=True"]
     environment:
-      DB_CONNECTION: "postgres://postgres:mysecretpassword@postgres:5432/camera_db"
+      <<: *camera-common-variables
+    env_file:
+      - ./.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      camera-server:
+        condition: service_started
+  camera-camera-1:
+    image: multi-camera-system
+    command: ["python", "-u", "src/camera_main.py", "--camera-id=1", "--dummy-mode=True"]
+    environment:
+      <<: *camera-common-variables
+    env_file:
+      - ./.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      camera-server:
+        condition: service_started
+  camera-camera-2:  
+    image: multi-camera-system
+    command: ["python", "-u", "src/camera_main.py", "--camera-id=2", "--dummy-mode=True"]
+    environment:
+      <<: *camera-common-variables
     env_file:
       - ./.env
     depends_on:
