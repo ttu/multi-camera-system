@@ -24,7 +24,19 @@ System for controlling multiple cameras
 
 ![Detection](docs/detection.excalidraw.png)
 
-### Install
+### Run with Docker Compose
+
+```sh
+cd multi-camera-system
+chmod +x setup.sh
+./setup.sh
+```
+
+Open `http://localhost:8000/site` to see the Server Side UI.
+
+Open `http://localhost:5173` to see the Client Side UI.
+
+### Install Development Environment
 
 Requirements
 
@@ -138,11 +150,4 @@ Start containers
 docker build -t camera-system .
 docker run --name camera-server --network camera-network -p 8000:8000 --rm camera-system python src/server_main.py
 docker run --name camera-camera --network camera-network --rm camera-system python src/camera_main.py --dummy-mode True
-```
-
-#### Docker Compose
-
-```sh
-chmod +x setup.sh
-./setup.sh
 ```

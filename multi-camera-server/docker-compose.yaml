@@ -101,6 +101,19 @@ services:
         condition: service_started
       camera-server:
         condition: service_started
+  camera-ui:
+    build:
+      context: ../multi-camera-ui
+      dockerfile: Dockerfile
+    volumes:
+      - ../multi-camera-ui:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://camera-server:8000
+    depends_on:
+      - camera-server
 volumes:
   postgres_data:
   minio_data:
