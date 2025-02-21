@@ -159,13 +159,14 @@ async def control_camera(request: Request):
     data = await request.json()
     camera_id = data["cameraId"]
     state = data["state"]
-    event = EventType(state)
+
+    try:
+        event = EventType(state)
+    except ValueError:
+        return JSONResponse(content={}, status_code=status.HTTP_400_BAD_REQUEST)
 
     if not server_core.has_camera(server_core.ROUTE_INFOS, int(camera_id)):
         return JSONResponse(content={}, status_code=status.HTTP_404_NOT_FOUND)
-
-    if not event:
-        return JSONResponse(content={}, status_code=status.HTTP_400_BAD_REQUEST)
 
     _ = event_handler.send_event(event, camera_id)
 
