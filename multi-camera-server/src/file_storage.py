@@ -35,7 +35,11 @@ def get_test_client():
 client = get_client() if not common_config.IS_TEST else get_test_client()
 
 if not client.bucket_exists(BUCKET_NAME):
-    client.make_bucket(BUCKET_NAME)
+    try:
+        client.make_bucket(BUCKET_NAME)
+    except S3Error as e:
+        # If multiple clients try to create the bucket at the same time make_bucket may fail
+        print("Error occurred when make_bucket.", e)
 
 
 def upload_file(upload_file_name, file_path):
