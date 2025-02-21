@@ -93,7 +93,7 @@ services:
         condition: service_started
       camera-server:
         condition: service_started
-  camera-camera-2:  
+  camera-camera-2:
     image: multi-camera-system
     command: ["python", "-u", "src/camera_main.py", "--camera-id=2", "--dummy-mode=True"]
     environment:

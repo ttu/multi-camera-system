@@ -1,11 +1,14 @@
 import os
 import pathlib
 import time
+
+from pathlib import Path
 from typing import Callable
 
 import cv2
 
 from common_types import CameraConfig, CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
+
 
 # https://www.geeksforgeeks.org/saving-operated-video-from-a-webcam-using-opencv/
 
@@ -34,14 +37,14 @@ def _get_video_record_path():
 
 
 def _create_output(camera_config: CameraConfig) -> VideoWriter:
-    video_record_path = _get_video_record_path()
-    if not os.path.exists(video_record_path):
-        os.makedirs(video_record_path)
+    video_record_path = Path(_get_video_record_path())
+    if not video_record_path.exists():
+        video_record_path.mkdir(parents=True)
 
     file_name = f"record_{camera_config.camera_id}_{round(time.time())}.mp4"
     file_full_path = f"{video_record_path}{file_name}"
 
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # type: ignore
     out = cv2.VideoWriter(file_full_path, fourcc, 20.0, camera_config.resolution)
     return VideoWriter(out, file_full_path)
 

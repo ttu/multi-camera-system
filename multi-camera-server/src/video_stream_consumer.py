@@ -1,12 +1,15 @@
 import pickle
 import socket
 import struct
+
 from queue import Queue
 from threading import Thread
 from typing import Generator, Tuple
 
 import common_config
+
 from common_types import Address, VideoFrame
+
 
 # https://gist.github.com/kittinan/e7ecefddda5616eab2765fdb2affed1b
 

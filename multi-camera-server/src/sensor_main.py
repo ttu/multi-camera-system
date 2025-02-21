@@ -4,6 +4,7 @@ from bleak import BleakScanner
 
 from data_store import update_camera_recording
 
+
 MACS_TO_LISTEN = ["61:13:C3:CE:7D:4D", "CD:D4:FA:52:7A:F2"]
 TARGET_RECORD_STRENGTH = -50
 TARGET_STOP_STRENGTH = -70

@@ -2,11 +2,14 @@ import sys
 
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 import data_store
 import event_handler
+
 from common_types import EventType
+
 
 if __name__ == "__main__":
     args = sys.argv[1:]

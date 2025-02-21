@@ -1,10 +1,12 @@
 import argparse
 import socket
 import time
+
 from threading import Thread
 from typing import Callable
 
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -13,7 +15,9 @@ import data_store
 import event_handler
 import file_storage
 import video_stream_producer
+
 from common_types import CameraStatus, EventType, VideoFrame
+
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--camera-id", dest="camera_id", default=0)
@@ -111,7 +115,7 @@ def main_loop(camera_id: int, use_dummy_mode: bool):
     _update_address_info(camera_id, SOCKET.socket_object)
 
     def _request_socket_update():
-        SOCKET.socket_object = video_stream_producer.try_init_socket()  # noqa: F841
+        SOCKET.socket_object = video_stream_producer.try_init_socket()
         _update_address_info(camera_id, SOCKET.socket_object)
 
     while True:

@@ -1,13 +1,14 @@
 import os
 import time
+
 from typing import Callable
 
 import cv2
 
 import camera_record_loop
+
 from common_types import CameraConfig, CameraStatus, VideoCaptureDevice, VideoFrame, VideoWriter, ViderRecording
 
-# pylint: disable=duplicate-code, unused-argument, protected-access
 
 VIDEO_1 = f"{camera_record_loop._get_source_path()}{os.sep}sample_videos{os.sep}bike_1_360p.mp4"
 VIDEO_2 = f"{camera_record_loop._get_source_path()}{os.sep}sample_videos{os.sep}bike_2_360p.mp4"

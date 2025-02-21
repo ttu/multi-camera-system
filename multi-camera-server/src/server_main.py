@@ -1,16 +1,18 @@
 import asyncio
 import sys
+
 from asyncio.queues import Queue
 from dataclasses import asdict, dataclass
 from threading import Thread
 
 import uvicorn
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, Header, Request, Response, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -18,6 +20,7 @@ import common_config
 import event_handler
 import file_storage
 import server_core
+
 from common_types import CameraInfo, EventType, RouteInfo
 
 

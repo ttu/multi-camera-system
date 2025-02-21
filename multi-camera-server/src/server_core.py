@@ -1,5 +1,6 @@
 import os
 import pathlib
+
 from asyncio.queues import Queue
 from dataclasses import dataclass
 from datetime import datetime
@@ -11,7 +12,9 @@ import data_store
 import event_handler
 import file_storage
 import video_stream_consumer
+
 from common_types import CameraInfo, EventType, RouteInfo
+
 
 if common_config.UVICORN_BASE_PATH:
     path_base = common_config.UVICORN_BASE_PATH
@@ -78,7 +81,7 @@ def _get_camera_with_address(routes: list[RouteInfo], address: str) -> CameraInf
 def has_camera(routes: list[RouteInfo], camera_id: int) -> bool:
     all_cameras = _get_all_cameras_from_routes(routes)
     cameras = [camera for camera in all_cameras if camera.camera_id == int(camera_id)]
-    return False if not cameras else True
+    return bool(cameras)
 
 
 async def listen_for_server_events(queue: Queue[SocketStatusPayload]):

@@ -1,7 +1,8 @@
-import os
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import Any, Callable, Tuple
+
 
 VideoFrame = Any
 MemoryBufferImage = Any
@@ -30,8 +31,8 @@ class ViderRecording:
         self.file_full_name = file_full_name
 
     def clean_up(self):
-        if os.path.exists(self.file_full_name):
-            os.remove(self.file_full_name)
+        if Path(self.file_full_name).exists():
+            Path(self.file_full_name).unlink()
 
 
 class VideoCaptureDevice:

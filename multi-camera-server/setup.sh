@@ -42,4 +42,4 @@ echo "Access Key: ${ACCESS_KEY}"
 echo "Secret Key: ${SECRET_KEY}"
 
 echo "Starting remaining services..."
-docker compose up -d 
+docker compose up -d

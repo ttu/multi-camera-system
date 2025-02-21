@@ -1,5 +1,6 @@
 import asyncio
 import sys
+
 from multiprocessing import Process
 
 import uvicorn
@@ -8,6 +9,7 @@ import camera_main
 import common_config
 import data_store
 import server_main
+
 
 if __name__ == "__main__":
     if sys.platform == "win32":

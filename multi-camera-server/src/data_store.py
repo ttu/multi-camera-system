@@ -1,7 +1,9 @@
 import psycopg
 
 import common_config
+
 from common_types import CameraInfo, CameraStatus, RouteInfo
+
 
 # pylint: disable=not-context-manager
 

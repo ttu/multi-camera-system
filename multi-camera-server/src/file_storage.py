@@ -2,7 +2,9 @@ from minio import Minio
 from minio.error import S3Error
 
 import common_config
+
 from common_types import FileInfo
+
 
 BUCKET_NAME = "camera-system"
 

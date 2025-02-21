@@ -3,7 +3,9 @@ from typing import AsyncGenerator, Generator, Tuple
 import psycopg
 
 import common_config
+
 from common_types import EventType
+
 
 # pylint: disable=not-context-manager
 
