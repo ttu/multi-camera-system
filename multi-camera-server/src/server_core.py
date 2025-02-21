@@ -105,8 +105,10 @@ async def check_initial_camera_info(queue: Queue[SocketStatusPayload]):
 
     for route in ROUTE_INFOS:
         for camera in route.cameras:
-            print("Camera address", {"camera_id": camera.camera_id, "address": camera.address})
-            print("Camera status", {"camera_id": camera.camera_id, "status": camera.status})
+            print(
+                "Initial camera data",
+                {"camera_id": camera.camera_id, "address": camera.address, "status": camera.status},
+            )
             await queue.put(SocketStatusPayload(route.route_id, camera.camera_id, camera.status))
 
 
