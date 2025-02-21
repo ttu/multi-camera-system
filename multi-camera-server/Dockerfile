@@ -7,6 +7,9 @@ RUN apt install -y libopencv-dev python3-opencv
 # Set the working directory in the container
 WORKDIR /app
 
+# Install debugpy for remote debugging
+RUN pip install debugpy
+
 # Copy the requirements file to the container
 COPY pyproject.toml .
 
@@ -20,3 +23,9 @@ COPY . .
 # CMD ["python", "camera_main.py", "--dummy-mode", "True"]
 # CMD ["python", "server_main.py"]
 # ENTRYPOINT [ "python" ]
+
+# Expose the port for the FastAPI application and debugger
+EXPOSE 8000 5678
+
+# Command to run the application with debugger enabled
+CMD ["python",  "-Xfrozen_modules=off", "-m", "debugpy", "--listen", "0.0.0.0:5678", "--wait-for-client", "-m", "uvicorn", "src.server_main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

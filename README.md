@@ -16,11 +16,11 @@ System for controlling multiple cameras
 
 ![System](docs/system.excalidraw.png)
 
-#### PoC communication
+#### PoC Communication
 
 ![System](docs/poc_communication.excalidraw.png)
 
-#### Detection with BLE sensors & recording
+#### Detection with BLE Sensors & Recording
 
 ![Detection](docs/detection.excalidraw.png)
 
@@ -36,6 +36,19 @@ Open `http://localhost:8000/site` to see the Server Side UI.
 
 Open `http://localhost:5173` to see the Client Side UI.
 
+#### Run Only External Containers For Development
+
+```sh
+./setup.sh
+docker compose down && docker compose up -d postgres minio
+```
+
+Camera's inside Docker do not work at the moment. That is due how Docker handles the network. If `host.docker.internal` is used as `SERVER_HOST` in `.env`, camera's will have own ip address (`172.20.0.x`), but the server will see those as from different hosts (`127.0.0.1`).
+
+#### Start Containers for Debugging
+
+`docker-compose.yml` has a command for starting container with `debugpy`. It will wait for client to connect before starting the server. Check VS Code Docker debug start command from `launch.json`.
+
 ### Install Development Environment
 
 Requirements
@@ -50,7 +63,8 @@ Server
 cd multi-camera-server
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install .[dev]
+python -m pip install -e .[dev]
+# python -m pip install -e .\[dev\]
 cp .env.example .env
 ```
 
