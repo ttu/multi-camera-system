@@ -89,5 +89,5 @@ ignore_missing_imports = true
 testpaths = "tests/"
 
 [tool.uv]
-resolution = "highest-direct"
+resolution = "highest"
 prerelease = "disallow"
