@@ -87,3 +87,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = "tests/"
+
+[tool.uv]
+resolution = "highest-direct"
+prerelease = "disallow"

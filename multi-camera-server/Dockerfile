@@ -7,14 +7,11 @@ RUN apt install -y libopencv-dev python3-opencv
 # Set the working directory in the container
 WORKDIR /app
 
-# Install debugpy for remote debugging
-RUN pip install debugpy
+# Install debugpy and uv
+RUN pip install debugpy uv
 
-# Copy the requirements file to the container
 COPY pyproject.toml .
-
-# Install the Python dependencies
-RUN python -m pip install .
+RUN uv pip install --system .
 
 # Copy the application code to the container
 COPY . .

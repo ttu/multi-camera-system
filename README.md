@@ -57,14 +57,33 @@ Requirements
 asdf install
 ```
 
+#### Install uv (Optional but Recommended)
+
+```sh
+# Using pip
+pip install uv
+
+# Using Homebrew (macOS)
+brew install uv
+```
+
 Server
 
 ```sh
 cd multi-camera-server
+
+# Using uv (recommended)
+uv venv
+source .venv/bin/activate
+uv pip install -e .[dev]
+# uv pip install -e .\[dev\]  # zsh
+
+# Or using traditional pip
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .[dev]
-# python -m pip install -e .\[dev\]
+# python -m pip install -e .\[dev\]  # zsh
+
 cp .env.example .env
 ```
 
