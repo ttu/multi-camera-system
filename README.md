@@ -57,16 +57,6 @@ Requirements
 asdf install
 ```
 
-#### Install uv (Optional but Recommended)
-
-```sh
-# Using pip
-pip install uv
-
-# Using Homebrew (macOS)
-brew install uv
-```
-
 Server
 
 ```sh
