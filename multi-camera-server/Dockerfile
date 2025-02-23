@@ -1,5 +1,5 @@
 # Use the official Python base image with the desired version
-FROM python:3.11.3-slim
+FROM python:3.13.2-slim
 
 RUN apt-get update
 RUN apt install -y libopencv-dev python3-opencv
